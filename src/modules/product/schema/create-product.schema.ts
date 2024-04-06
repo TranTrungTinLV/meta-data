@@ -24,7 +24,7 @@ export class Product extends Document {
     @Prop(
         {
           type: mongoose.Schema.Types.String,
-          default: () => v4().split('-')[0]
+          required: true
         }
       )
       code: string; 
