@@ -1,14 +1,3 @@
-// - code: string
-// - category_id: string
-// - detail: string
-// - specification: string //quy cách
-// - standard: string //tiêu chuẩn
-// - unit: string //đơn vị tính
-// - quantity: number //số lượng
-// - images: [string] //hình ảnh
-// - note: string //ghi chú
-
-
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { Document, Types } from 'mongoose';
 // import { User } from 'src/users/schema/users.schema';
@@ -20,7 +9,7 @@ import {v4} from 'uuid'
     }
 )
 
-export class Product extends Document {
+export class Product extends Document{
     @Prop(
         {
           type: mongoose.Schema.Types.String,
@@ -81,11 +70,11 @@ export class Product extends Document {
     )
     quantity: number;
 
-    @Prop({ type: [mongoose.Schema.Types.String], required: true })
-    images: string[];
+    @Prop({ type: mongoose.Schema.Types.String, required: true })
+    images: string;
 
     @Prop({type: mongoose.Schema.Types.String,required: false})
     note: string;
 }
 
-export const ProductSchema = SchemaFactory.createForClass(Product)
+export const ProductSchema = SchemaFactory.createForClass(Product);
