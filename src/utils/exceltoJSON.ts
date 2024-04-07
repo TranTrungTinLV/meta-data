@@ -7,6 +7,7 @@ import { extname, join } from "path";
 import { Product } from "src/modules/product/schema/create-product.schema";
 import { v4 as uuid} from 'uuid'
 import { promises as fsPromises } from 'fs';
+import { ProductService } from "src/modules/product/product.service";
 
 const BASE_STORAGE_PATH = join(__dirname, 'storage');
 
@@ -53,33 +54,76 @@ export const multerImageOptions = {
       }
     })
   };
-  export async function saveImageFromCell(cell, rowNumber, categoryName) {
-    // Giả định rằng cell.value chứa dữ liệu hình ảnh dạng base64
-    const base64Data = cell.value;
-    if (!base64Data) return null;
+  // export async function saveImageFromCell(data: any, rowNumber: number, categoryName: string): Promise<string | null> {
+  //   if (!data) return null;
+
+  // const cellValue = data.value;
+  // if (!cellValue) return null;
+
+  // const tempDir = join(BASE_STORAGE_PATH, 'temp');
+  // if (!existsSync(tempDir)) {
+  //   mkdirSync(tempDir, { recursive: true });
+  // }
+
+  // const tempFile = join(tempDir, `temp_${rowNumber}.png`);
+  // await fsPromises.writeFile(tempFile, cellValue, 'base64');
+
+  // const imageDir = join(BASE_STORAGE_PATH, 'images', categoryName);
+  // if (!existsSync(imageDir)) {
+  //   mkdirSync(imageDir, { recursive: true });
+  // }
+
+  // const imageName = `image_${rowNumber}.png`;
+  // const imagePath = join(imageDir, imageName);
+
+  // // Move the temporary file to the final destination
+  // await fsPromises.rename(tempFile, imagePath);
+
+  // return imageName;
+  // }
+
+  export async function saveImageFromCell(data: any, rowNumber: number, categoryName: string): Promise<string | null> {
+    if (!data) return null;
   
-    const imageData = base64Data.split('base64,').pop();
+    const cellValue = data.value;
+    if (!cellValue) return null;
   
-    const imagePath = join(BASE_STORAGE_PATH, 'excel', 'images', categoryName, `image_${rowNumber}.png`);
-    await fsPromises.writeFile(imagePath, imageData,'base64');
+    const tempDir = join(BASE_STORAGE_PATH, 'temp');
+    if (!existsSync(tempDir)) {
+      mkdirSync(tempDir, { recursive: true });
+    }
   
-    return imagePath;
+    const tempFile = join(tempDir, `temp_${rowNumber}.png`);
+    await fsPromises.writeFile(tempFile, cellValue, 'base64url');
+  
+    const imageDir = join(BASE_STORAGE_PATH, 'images', categoryName);
+    if (!existsSync(imageDir)) {
+      mkdirSync(imageDir, { recursive: true });
+    }
+  
+    const imageName = `image_${rowNumber}.png`;
+    const imagePath = join(imageDir, imageName);
+  
+    // Move the temporary file to the final destination
+    await fsPromises.writeFile(tempFile, imagePath);
+  
+    return imageName;
   }
 
   
-export async function importExcel2Data(filePath:string) { 
+export async function importExcel2Data(filePath:string,productService: ProductService) { 
     const workbook = new ExcelJS.Workbook();
     await workbook.xlsx.readFile(filePath)
     const worksheet = workbook.getWorksheet('Sheet1') || workbook.worksheets[0];
     const imageMap = new Map();
     worksheet.getImages().forEach(image => {
-        imageMap.set(image.range.tl.nativeRow, image);
+      imageMap.set(image.range.tl.nativeRow, image);
     });
     worksheet.eachRow({
         includeEmpty: true
     },async (row,rowNumber) => { //hàng và số hàng
         if(rowNumber > 1){ //Hàng đầu tiên là tiêu đề 
-            const category = row.getCell(2);
+            const category = row.getCell(3);
             let categoryName = '';
             if (typeof category.value === 'string') {
                 categoryName = category.value.trim();
@@ -91,24 +135,31 @@ export async function importExcel2Data(filePath:string) {
                     mkdirSync(categpryPath,{recursive: true})
                 }
             }
-            const imageCell = row.getCell(9); // Điều chỉnh số cột phù hợp với cấu trúc file của bạn
-            const imagePath = await saveImageFromCell(imageCell, rowNumber, categoryName);
+            // const image = imageMap.get(rowNumber); // Điều chỉnh số cột phù hợp với cấu trúc file của bạn
+            // const image = imageMap.get(9);
+            const imageCell = row.getCell(10).value; 
+            // let imagePath = null;
 
-            const product = new Product({
-                code: row.getCell(1).value,
-                category: categoryName,
-                name: row.getCell(3).value,
-                detail: row.getCell(4).value,
-                specification: row.getCell(5).value,
-                standard: row.getCell(6).value,
-                unit: row.getCell(7).value,
-                quantity: row.getCell(8).value,
-                // images:imagePath  ? [imagePath] : [],
-                note: row.getCell(10).value
-            });
+            // const imageData = image.xxx;
+            let imagePath = (await saveImageFromCell(imageCell, rowNumber, categoryName));
+            console.log("imagePath",String(imagePath))
+
+
+            const product = {
+                code: String(row.getCell(2).value),
+                category_id: String(categoryName),
+                name: String(row.getCell(4).value),
+                detail: String(row.getCell(5).value),
+                specification: String(row.getCell(6).value),
+                standard: String(row.getCell(7).value),
+                unit: String(row.getCell(8).value),
+                quantity: !isNaN(Number(row.getCell(9).value)) ? Number(row.getCell(9).value) : undefined,
+                images: imagePath ? [imagePath] : ["khong co hinh"],
+                note: String(row.getCell(11).value)
+            };
             try{
-                await product;
                 console.log(`Product ${product.name} saved successfully.`)
+                return await productService.create(product);
             }catch(error){
                 console.error(`Error saving product: `, error);
             }

@@ -20,11 +20,11 @@ export class Product extends Document{
 
     @Prop(
       { 
-         type: mongoose.Schema.Types.ObjectId,
-         ref: 'Category'
+         type: mongoose.Schema.Types.String,
+         required: false
         }
     )
-    category_id: Types.ObjectId;
+    category_id: string;
 
     @Prop(
         {
@@ -36,20 +36,20 @@ export class Product extends Document{
 
     @Prop({
         type: mongoose.Schema.Types.String,
-        required: true
+        required: false
     })
     detail: string;
 
     @Prop({
         type: mongoose.Schema.Types.String,
-        required: true
+        required: false
     })
     specification: string;
 
     @Prop(
         {
             type: mongoose.Schema.Types.String,
-            required: true
+            required: false
         }
     )
     standard: string;
@@ -57,7 +57,7 @@ export class Product extends Document{
     @Prop(
         {
             type: mongoose.Schema.Types.String,
-            required: true
+            required: false
         }
     )
     unit: string;
@@ -65,14 +65,14 @@ export class Product extends Document{
     @Prop(
         {
             type: mongoose.Schema.Types.Number,
-            required: true
+            required: false
         }
     )
     quantity: number;
 
-    @Prop({ type: mongoose.Schema.Types.String, required: true })
-    images: string;
-
+    @Prop({ type: [String], required: false })
+    images: string[];
+    
     @Prop({type: mongoose.Schema.Types.String,required: false})
     note: string;
 }

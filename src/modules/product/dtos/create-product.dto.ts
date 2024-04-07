@@ -6,6 +6,7 @@ export class CreateProductDto {
   readonly code: string;
 
   @IsString()
+  @IsNotEmpty()
   readonly category_id: string;
 
   @IsString()
@@ -30,10 +31,11 @@ export class CreateProductDto {
 
   @IsNumber()
   @IsNotEmpty()
-  readonly quantity: number;
+  readonly quantity?: number;
 
-  @IsString({ each: true })
-  readonly images: string[];
+  @IsString()
+  @IsNotEmpty()
+  readonly images?: string[];
 
   @IsString()
   @IsOptional()

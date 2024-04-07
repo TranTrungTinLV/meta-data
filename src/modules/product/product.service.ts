@@ -15,6 +15,4 @@ export class ProductService {
         const createdProduct = new this.productModel(createProductDto);
         return createdProduct.save();
       }
-
-
 }

@@ -19,7 +19,7 @@ export class ProductController {
       throw new HttpException('File is empty', HttpStatus.BAD_REQUEST);
     }
     const filePath = file.path; // lấy đường dẫn file đã được upload
-    await importExcel2Data(filePath);
+    await importExcel2Data(filePath,this.productService);
     return 'File has been uploaded and data is being processed.';
   }
 
