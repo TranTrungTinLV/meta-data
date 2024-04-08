@@ -50,6 +50,7 @@ async function bootstrap() {
       },'bearerAuth'
     )
     .addTag('Auth')
+    .addTag('Register')
     .addTag('Product')
     .addTag('Favourite')
     .addTag('Category')

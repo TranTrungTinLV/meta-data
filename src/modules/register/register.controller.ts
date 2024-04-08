@@ -12,17 +12,14 @@ import { CreateRegistorDto } from './dtos/create-users.dto';
 
 // import { rateLimitMiddleware } from 'src/utils/rating-limit';
 
-
 @ApiTags('Register')
-
-@Public()
 @Controller('register')
 export class RegistorController {
   constructor(private readonly registorService: RegisterService) {}
 
   // @UseInterceptors(rateLimitMiddleware)
-
-  @Post()
+  @Public()
+  @Post('')
   @ApiOperation({ summary: 'đăng ký', description: 'Yêu cầu nhập đủ user và pass' })
   async registration(@Body() Registor: CreateRegistorDto) {
     console.log(`Registration of user '${Registor.username}' in progress.`);

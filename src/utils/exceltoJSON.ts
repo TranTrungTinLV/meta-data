@@ -69,14 +69,9 @@ export const multerExcelOptions = {
   }),
 };
 
-// export async function saveImageAsBase64(imageBuffer) {
-//   // Generate a random filename for the image
-//   const imageName = `${uuid()}.png`;
-//   const imagePath = join(BASE_STORAGE_PATH, 'images', imageName);
-
-//   // Save the image and convert to Base64
-//   await fsPromises.writeFile(imagePath, imageBuffer);
-//   return imageBuffer.toString('base64');
+// async writeFileSync(files: any[]) {
+//   const nameFiles: string[] = [];
+//   return nameFiles
 // }
 
 export async function saveImageAsBase64(imageBuffer: Buffer): Promise<string> {

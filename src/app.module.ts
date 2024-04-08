@@ -66,7 +66,7 @@ import { CategoryModule } from './modules/category/category.module';
     UsersModule,
     RedisModule,
     CategoryModule,
-    
+    RegisterModule,
     MailerModule,
   
     BullModule.forRootAsync({
