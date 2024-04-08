@@ -29,7 +29,7 @@ import { ProductSchema } from '../product/schema/create-product.schema';
      
       host: configService.get<string>('REDIS_HOST'),
       port: configService.get<number>('REDIS_PORT'),
-      auth_pass: configService.get<string>('REDIS_PASS'),
+      // auth_pass: configService.get<string>('REDIS_PASS'),
       ttl: 300000,
       isGlobal: true,
       }),
@@ -57,7 +57,7 @@ import { ProductSchema } from '../product/schema/create-product.schema';
         redis: {
           host: configService.get<string>('REDIS_HOST'),
           port: configService.get<number>('REDIS_PORT'),
-          password: configService.get<string>('REDIS_PASS')
+          // password: configService.get<string>('REDIS_PASS')
           
         },
       }),
@@ -69,7 +69,7 @@ import { ProductSchema } from '../product/schema/create-product.schema';
         redis: {
           host: configService.get<string>('REDIS_HOST'),
           port: configService.get<number>('REDIS_PORT'),
-          password: configService.get<string>('REDIS_PASS'),
+          // password: configService.get<string>('REDIS_PASS'),
         },
       }),
       inject: [ConfigService]

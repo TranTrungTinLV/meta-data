@@ -11,6 +11,8 @@ export class CategoryController {
 
   @Post()
   @ApiConsumes('multipart/form-data')
-  create(@Body() createCategoryDto: CreateCategoryDto) {}
+  async create(@Body() createCategoryDto: CreateCategoryDto) {
+    return await this.categoryService.create(createCategoryDto)
+  }
 
 }

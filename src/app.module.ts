@@ -33,7 +33,7 @@ import { CategoryModule } from './modules/category/category.module';
         store: redisStore, 
       host: configService.get<string>('REDIS_HOST'),
       port: configService.get<number>('REDIS_PORT'),
-      auth_pass: configService.get<string>('REDIS_PASS'),
+      // auth_pass: configService.get<string>('REDIS_PASS'),
       ttl: 2000,
       isGlobal: true,
       }),
