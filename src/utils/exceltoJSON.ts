@@ -7,7 +7,6 @@ import { v4 as uuid } from 'uuid';
 import { promises as fsPromises } from 'fs';
 import { ProductService } from 'src/modules/product/product.service';
 
-
 import fs from 'fs';
 
 const BASE_STORAGE_PATH = join(__dirname, 'storage');
@@ -118,6 +117,10 @@ async function extractImagesFromWorkbook(
   return images;
 }
 
+export async function bufferToBase64(buffer: Buffer): Promise<string> {
+  return buffer.toString('base64');
+}
+
 export async function importExcel2Data(
   filePath: string,
   productService: ProductService,
@@ -131,6 +134,7 @@ export async function importExcel2Data(
   for (let rowNumber = 2; rowNumber <= worksheet.rowCount; rowNumber++) {
     const row = worksheet.getRow(rowNumber);
     console.log(`Row ${rowNumber}:`, row.values);
+    
     worksheet.eachRow(
       {
         includeEmpty: false,
@@ -147,18 +151,19 @@ export async function importExcel2Data(
           const imageCell = row.getCell(10);
           let imageAsBase64 = 'khong co hinh';
           const imageBuffer = images[rowNumber];
-          
-          if (typeof imageBuffer === 'string') {
-            // Đã là chuỗi Base64, chỉ cần gán trực tiếp
-            console.log("có hình ảnh")
-            return imageAsBase64 = imageBuffer;
 
+          if (
+            imageBuffer && typeof imageBuffer === 'string' && imageBuffer.trim() !== ''
+          ) {
+            // Đã là chuỗi Base64, chỉ cần gán trực tiếp
+            console.log('có hình ảnh');
+            imageAsBase64 = imageBuffer;
+            console.log('Added image for row ' + rowNumber);
           }
-        //   if (imageBuffer && imageBuffer instanceof Buffer) {
-        //     // Chỉ khi imageBuffer là một instance của Buffer mới thực hiện chuyển đổi
-        //     imageAsBase64 = await saveImageAsBase64(imageBuffer);
-        // }
-    
+          //   if (imageBuffer && imageBuffer instanceof Buffer) {
+          //     // Chỉ khi imageBuffer là một instance của Buffer mới thực hiện chuyển đổi
+          //     imageAsBase64 = await saveImageAsBase64(imageBuffer);
+          // }
 
           if (categoryName) {
             const categpryPath = join(__dirname, 'storage', categoryName);
@@ -166,8 +171,6 @@ export async function importExcel2Data(
               mkdirSync(categpryPath, { recursive: true });
             }
           }
-
-        
 
           const product = {
             code: String(row.getCell(2).value),
@@ -180,25 +183,28 @@ export async function importExcel2Data(
             quantity: !isNaN(Number(row.getCell(9).value))
               ? Number(row.getCell(9).value)
               : undefined,
-            images: [imageAsBase64],
+            images:  imageAsBase64 !== 'khong co hinh' ? [imageAsBase64] : [],
             note: String(row.getCell(11).value),
           };
-          // if (images[rowNumber]) {
-          //   try {
-          //     const imageAsBase64 = await saveImageAsBase64(images[rowNumber]);
-          //     if (imageAsBase64) {
-          //       product.images.push(imageAsBase64);
-          //     }
-          //   } catch (error) {
-          //     console.error(
-          //       `Error processing image for row ${rowNumber}:`,
-          //       error,
-          //     );
-          //   }
-          // }
+          if (images[rowNumber]) {
+            try {
+              // const imageAsBase64 = await saveImageAsBase64(images[rowNumber].t);
+              if (imageAsBase64) {
+                // product.images.push(imageAsBase64);
+                // console.log(imageAsBase64,"hình nè")
+                const base64Image = await bufferToBase64(imageBuffer as any);
+                product.images.push(base64Image);
+              }
+            } catch (error) {
+              console.error(
+                `Error processing image for row ${rowNumber}:`,
+                error,
+              );
+            }
+          }
           try {
             console.log(`Product ${product.name} saved successfully.`);
-            return await productService.create(product);
+            await productService.create(product);
           } catch (error) {
             console.error(`Error saving product: `, error);
           }
