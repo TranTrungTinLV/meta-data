@@ -172,7 +172,7 @@ export async function importExcel2Data(
 
           const product = {
             code: String(row.getCell(2).value),
-            category_id: String(categoryName),
+            // category_id,
             name: String(row.getCell(4).value),
             detail: String(row.getCell(5).value),
             specification: String(row.getCell(6).value),
@@ -183,7 +183,7 @@ export async function importExcel2Data(
               : undefined,
             images:  imageAsBase64 !== 'khong co hinh' ? [imageAsBase64] : [],
             note: String(row.getCell(11).value),
-
+            categoryName:  String(categoryName),
           };
           if (images[rowNumber]) {
             try {

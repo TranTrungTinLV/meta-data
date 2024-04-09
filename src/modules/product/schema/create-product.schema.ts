@@ -24,7 +24,7 @@ export class Product extends Document{
          ref: 'Category',
     }
     )
-    category_id: string;
+    category_id: Types.ObjectId;
 
     @Prop(
         {

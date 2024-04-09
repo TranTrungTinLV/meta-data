@@ -14,15 +14,16 @@ export class CreateProductDto {
   // readonly category_id?: string;
 
 
-  @ApiProperty({ description: 'Mảng ID của danh mục', type: 'array', items: { type: 'string' }, required: false })
-  @IsNotEmpty()
-  @IsArray()
-  @IsMongoId({ each: true })
-  category_id: string[];
+  // @ApiProperty({ description: 'Mảng ID của danh mục', type: 'array', items: { type: 'string' }, required: false })
+  // @IsNotEmpty()
+  // @IsArray()
+  // @IsMongoId({ each: true })
+  // category_id: string[];
 
   @ApiProperty({ description: 'Tên danh mục', type: 'array', items: { type: 'string' }, required: false })
+  @IsOptional()
   @IsString({ each: true })
-  readonly categoryName: string[];
+  readonly categoryName: string;
 
 
   // @ApiProperty({ description: 'Tên danh mục', type: 'array', items: { type: 'string' }, required: false })

@@ -11,8 +11,9 @@ export type CategoryDocument = HydratedDocument<Category>
 export class Category {
 
     @Prop({})
-    slug: string
-    @Prop({type: mongoose.Schema.Types.String})
+    slug: string;
+    
+    @Prop({type: mongoose.Schema.Types.String,unique: [true,"Danh mục này đã tồn tại"],required:[true,"Vui lòng nhập danh mục"]})
     name: string;
 
     @Prop([{type: mongoose.Schema.Types.ObjectId, ref: 'Categories'}])
