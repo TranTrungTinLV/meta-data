@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { ProductService } from './product.service';
 import { ProductController } from './product.controller';
 import { MongooseModule } from '@nestjs/mongoose';
@@ -13,6 +13,7 @@ import { Favourite, FavouriteSchema } from '../favourite/schema/create-favourtie
   imports: [
     UsersModule,
     FavouriteModule,
+    forwardRef(() => ProductModule),
     MongooseModule.forFeature(
     [
     {name: User.name, schema: UserSchema},

@@ -5,11 +5,13 @@ import { Model } from 'mongoose';
 import { CreateProductDto } from './dtos/create-product.dto';
 import { UsersService } from '../users/users.service';
 import { UpdateProductDto } from './dtos/update-product.dto';
+import { Category } from '../category/schema/category.schema';
 
 @Injectable()
 export class ProductService {
     constructor(
         @InjectModel(Product.name)  private readonly productModel: Model<Product>,
+        @InjectModel(Category.name) private readonly categoryModel: Model<Category>,
         private readonly userService: UsersService
     ){
         
@@ -19,16 +21,26 @@ export class ProductService {
         return createdProduct.save();
       }
 
-    async create(createProductDto: CreateProductDto,username: string): Promise<Product> {
-        const owner = await this.userService.findOne(username);
-        if(!owner){
-            throw new Error('Không tìm thấy người dùng')
-        }
-
+    async create(createProductDto: CreateProductDto,username: null): Promise<Product> {
+        // const owner = await this.userService.findOne(username);
+        // if(!owner){
+        //     throw new Error('Không tìm thấy người dùng')
+        // }
+        // const category = await this.categoryModel.findOne({name: createProductDto.categoryName })
+        // console.log(category)
+        // if (!category) {
+        //   throw new Error('Không tìm thấy danh mục');
+        // }
         const newProduct = this.productModel.create({
             ...createProductDto,
-            owner: owner._id,
+            // owner: owner._id,
+            // category: category.name
+            
         })
+
+        // await this.categoryModel.findByIdAndUpdate(category._id, {
+        //   $push: { products: (await newProduct)._id },
+        // }); 
         
         return newProduct;
     }
@@ -58,11 +70,11 @@ export class ProductService {
         }
 
         // Cập nhật danh mục bằng cách loại bỏ sản phẩm khỏi danh sách sản phẩm của danh mục
-        // await this.categoryModel.findByIdAndUpdate(product.category_id,{
-        //   $pull: {
-        //     products: productId
-        //   }
-        // })
+        await this.categoryModel.findByIdAndUpdate(product.category_id,{
+          $pull: {
+            products: productId
+          }
+        })
         return result;
       }
 

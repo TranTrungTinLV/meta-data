@@ -39,6 +39,8 @@ export class ProductController {
     FilesInterceptor('images',5,multerOptions('products')),
     ) //images
     @ApiConsumes('multipart/form-data')
+    @ApiOperation({description:'Thêm sản phẩm'})
+    
   @Post()
   async create( 
     @UploadedFiles() files: Array<Express.Multer.File>, //images
@@ -51,7 +53,7 @@ export class ProductController {
     createProductDto.images = files.map(file => `images/products/${file.filename}`)
     //images + products + images 
     console.log(createProductDto.images)
-    const username = request.user.username;
+    const username = null;
     console.log(username);
    
     return await this.productService.create(createProductDto, username);

@@ -110,6 +110,7 @@ async function extractImagesFromWorkbook(
       const buffer = Buffer.from(media.buffer as any);
       const base64Image = await saveImageAsBase64(buffer);
       images[media.name || uuid()] = base64Image;
+      console.log("oki oì đós")
     }
   }
   return images;
@@ -182,6 +183,7 @@ export async function importExcel2Data(
               : undefined,
             images:  imageAsBase64 !== 'khong co hinh' ? [imageAsBase64] : [],
             note: String(row.getCell(11).value),
+
           };
           if (images[rowNumber]) {
             try {
@@ -190,6 +192,7 @@ export async function importExcel2Data(
                 // product.images.push(imageAsBase64);
                 // console.log(imageAsBase64,"hình nè")
                 const base64Image = await bufferToBase64(imageBuffer as any);
+                console.log("hehehehehehehe",base64Image)
                 product.images.push(base64Image);
               }
             } catch (error) {
@@ -206,7 +209,7 @@ export async function importExcel2Data(
             console.error(`Error saving product: `, error);
           }
         }
-      },
+      },  
     );
   }
 }

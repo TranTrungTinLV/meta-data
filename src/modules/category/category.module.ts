@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Inject, Module } from '@nestjs/common';
 import { CategoryService } from './category.service';
 import { CategoryController } from './category.controller';
 import { MongooseModule } from '@nestjs/mongoose';
@@ -10,6 +10,7 @@ import { ProductModule } from '../product/product.module';
 @Module({
   imports: [
     UsersModule,
+    // forwardRef(()=> ProductModule),
     ProductModule,
     MongooseModule.forFeature([
       {
