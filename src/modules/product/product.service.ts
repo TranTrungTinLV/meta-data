@@ -26,22 +26,22 @@ export class ProductService {
         // if(!owner){
         //     throw new Error('Không tìm thấy người dùng')
         // }
-        // const category = await this.categoryModel.findOne({name: createProductDto.categoryName })
-        // console.log(category)
-        // if (!category) {
-        //   throw new Error('Không tìm thấy danh mục');
-        // }
+        const category = await this.categoryModel.findOne({name: createProductDto.categoryName })
+        console.log(category)
+        if (!category) {
+          throw new Error('Không tìm thấy danh mục');
+        }
         const newProduct = this.productModel.create({
             ...createProductDto,
             // owner: owner._id,
-            // category: category.name
-            
+            category: category._id
         })
 
-        // await this.categoryModel.findByIdAndUpdate(category._id, {
-        //   $push: { products: (await newProduct)._id },
-        // }); 
-        
+
+
+        await this.categoryModel.findByIdAndUpdate(category._id, {
+          $push: { products: (await newProduct)._id },
+        }); 
         return newProduct;
     }
 

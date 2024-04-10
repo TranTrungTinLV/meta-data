@@ -75,6 +75,9 @@ export class Product extends Document{
     
     @Prop({type: mongoose.Schema.Types.String,required: false})
     note: string;
+
+    @Prop()
+    category: string
 }
 
 export const ProductSchema = SchemaFactory.createForClass(Product);
