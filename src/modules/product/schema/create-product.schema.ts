@@ -18,12 +18,13 @@ export class Product extends Document{
       )
       code: string; 
 
-    @Prop(
-      { 
-         type: mongoose.Schema.Types.ObjectId,
-         ref: 'Category',
-    }
-    )
+    // @Prop(
+    //   { 
+    //      type: mongoose.Schema.Types.ObjectId,
+    //      ref: 'Category',
+    // }
+    // )
+    @Prop()
     category_id: Types.ObjectId;
 
     @Prop(
@@ -76,8 +77,6 @@ export class Product extends Document{
     @Prop({type: mongoose.Schema.Types.String,required: false})
     note: string;
 
-    // @Prop()
-    // category: string
     
 }
 

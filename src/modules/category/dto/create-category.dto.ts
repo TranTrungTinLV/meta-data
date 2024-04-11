@@ -1,5 +1,7 @@
+import { Prop } from "@nestjs/mongoose";
 import { ApiProperty } from "@nestjs/swagger";
-import { IsArray, IsMongoId, IsNotEmpty, IsString } from "class-validator";
+import { IsArray, IsMongoId, IsNotEmpty, IsOptional, IsString } from "class-validator";
+import mongoose, { Types } from "mongoose";
 
 export class CreateCategoryDto { 
     @IsString()
@@ -9,9 +11,17 @@ export class CreateCategoryDto {
         required: true
     })
     name: string;
-
-    @IsArray()
     
-    @IsMongoId({each:true})
-    parent: string[];
+    @ApiProperty({ required: false })
+    @IsString()
+    @IsOptional()
+    category_parent_id?: string;
+
+    @Prop([{type: mongoose.Schema.Types.ObjectId, ref: 'Category'}])
+    children: Types.ObjectId[];
+
+    @ApiProperty({ required: false, type: mongoose.Schema.Types.String })
+    @IsString()
+    @IsOptional()
+    icon_name?: string;
 }

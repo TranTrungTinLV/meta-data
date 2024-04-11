@@ -30,7 +30,7 @@ export class ProductService {
         // if(!owner){
         //     throw new Error('Không tìm thấy người dùng')
         // }
-        const category = await this.categoryModel.findById(createProductDto.categoryName)
+        const category = await this.categoryModel.findById(createProductDto.category_id)
         console.log(category)
         if (!category) {
          throw new HttpException('Không tìm thấy danh mục',HttpStatus.INTERNAL_SERVER_ERROR);
@@ -38,9 +38,8 @@ export class ProductService {
         const newProduct = this.productModel.create({
             ...createProductDto,
             // owner: owner._id,
-            category: category._id
+            category_id: category._id
         })
-
 
 
         await this.categoryModel.findByIdAndUpdate(category._id, {

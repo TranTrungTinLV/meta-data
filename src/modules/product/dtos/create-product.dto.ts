@@ -21,10 +21,9 @@ export class CreateProductDto {
   // category_id: string[];
 
   @ApiProperty({ description: 'Tên danh mục', type: 'string' })
-  @IsOptional()
-  @IsMongoId()
+  @IsString()
   // @IsString({ each: true })
-  readonly categoryName: string;
+  readonly category_id: string;
 
 
   // @ApiProperty({ description: 'Tên danh mục', type: 'array', items: { type: 'string' }, required: false })

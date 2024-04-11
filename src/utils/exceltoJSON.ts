@@ -120,9 +120,24 @@ export async function bufferToBase64(buffer: Buffer): Promise<string> {
   return buffer.toString('base64');
 }
 
+function columnLetterToNumber(colStr) {
+  if (typeof colStr !== "string" || !colStr.match(/^[A-Z]+$/)) {
+  console.log("colStr",colStr)
+
+      throw new Error(`Invalid column letter: ${colStr}`);
+      
+  }
+  let columnNumber = 0;
+  for (let i = 0; i < colStr.length; i++) {
+      columnNumber = columnNumber * 26 + (colStr.charCodeAt(i) - 'A'.charCodeAt(0) + 1);
+  }
+  return columnNumber;
+}
+
 export async function importExcel2Data(
   filePath: string,
   productService: ProductService,
+  fieldMapping: any
 ) {
   const workbook = new ExcelJS.Workbook();
   await workbook.xlsx.readFile(filePath);
@@ -145,6 +160,20 @@ export async function importExcel2Data(
           if (rowNumber === 1) return;
 
           const category = row.getCell(3);
+
+
+          
+        //   const productData = {};
+          
+        //   Object.keys(fieldMapping).forEach((key) => {
+        //     const excelColumnIndex = fieldMapping[key]; // Lấy index của cột từ mảng quy định
+        //     productData[key] = row.getCell(excelColumnIndex).value;
+        // });
+
+
+
+
+
 
           const categoryName = row.getCell(3).value?.toString().trim() || '';
           const imageCell = row.getCell(10);
@@ -183,8 +212,17 @@ export async function importExcel2Data(
               : undefined,
             images:  imageAsBase64 !== 'khong co hinh' ? [imageAsBase64] : [],
             note: String(row.getCell(11).value),
-            categoryName:  String(categoryName),
+            category_id:  String(categoryName),
+            
           };
+          //Mảng Quy Định
+          Object.keys(fieldMapping).forEach((key) => {
+            const excelColumnLetter = fieldMapping[key] // Lấy index của cột từ mảng quy định
+            const excelColumnIndex = columnLetterToNumber(excelColumnLetter); //convert 
+            const cellValue = row.getCell(excelColumnIndex) ? row.getCell(excelColumnIndex).value : null;
+            product[key] = cellValue;
+
+        });
           if (images[rowNumber]) {
             try {
               // const imageAsBase64 = await saveImageAsBase64(images[rowNumber].t);
@@ -203,8 +241,8 @@ export async function importExcel2Data(
             }
           }
           try {
-            console.log(`Product ${product.name} saved successfully.`);
             await productService.createExcel(product);
+            console.log(`Product ${product.name} saved successfully.`);
           } catch (error) {
             console.error(`Error saving product: `, error);
           }

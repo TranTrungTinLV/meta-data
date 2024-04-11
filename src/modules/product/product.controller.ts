@@ -23,12 +23,15 @@ export class ProductController {
   @Public()
   @Post('upload')
   @UseInterceptors(FileInterceptor('file', multerExcelOptions))
-  async uploadFile(@UploadedFile() file) {
+  async uploadFile(
+    @UploadedFile() file,
+    @Body('mapping') mapping: string // 'mapping' là một chuỗi JSON của mảng quy định
+    ) {
     if (!file) {
       throw new HttpException('File is empty', HttpStatus.BAD_REQUEST);
     }
     const filePath = file.path; // lấy đường dẫn file đã được upload
-    await importExcel2Data(filePath,this.productService);
+    await importExcel2Data(filePath,this.productService,mapping);
     return 'File has been uploaded and data is being processed.';
   }
 
