@@ -64,25 +64,21 @@ export class ProductController {
 
   //sửa sản phẩm
   @Patch(':productId')
+  // @Roles([Role.Admin,Role.Staff])
+
   @UseInterceptors(
-    FilesInterceptor('newImages',5,multerOptions('products')),
-    ) //images
+    FileFieldsInterceptor([
+    { name: 'newImages', maxCount: 5 },
+  ], multerOptions('products')))
   @ApiConsumes('multipart/form-data')
 
-  // @Roles([Role.Admin,Role.Staff])
   @Public()
   @ApiOperation({ summary: 'Cập nhật sản phẩm', description: 'Yêu cầu role: Staff hoặc Admin' })
   async updateProduct(
     @Param('productId') productId: string,
     @Body() updateProductDto: UpdateProductDto,
-    @UploadedFiles() files: {newImages: Array<Express.Multer.File>},
+    @UploadedFiles() files: { newImages?: Express.Multer.File[] }
   ){
-
-    console.log('files',files)
-    // const imagePath = files.map(file => file.path)
-    // console.log(imagePath)
-    // console.log("imagePath",imagePath)
-    updateProductDto.newImages = files.newImages.map(file => `images/products/${file.filename}`)
    return this.productService.updateproduct(productId,updateProductDto,files.newImages)
   }
 

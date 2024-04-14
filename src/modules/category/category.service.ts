@@ -124,40 +124,74 @@ export class CategoryService {
       return category.save()
     }
 
+    // async deleteCategory(id:string) {
+    //   //check category exist?
+    //   const category = await this.categoryModel.findById(id);
+    //   if(!category) {
+    //     throw new NotFoundException(`Không tìm thấy danh mục với ID ${id} để xóa.`);
+    //   }
+
+    //   //check category có chứa danh mục không?
+    //   const hasProducts = await this.categoryModel.findOne({
+    //     _id: id,
+    //     products: {
+    //       $exists: true, $not: { $size: 0 } 
+    //     }
+    //   })
+    //   if (hasProducts) {
+    //     throw new BadRequestException(`Danh mục với ID ${id} chứa sản phẩm và không thể xóa.`);
+    //   }
+
+    //   //check danh mục con
+    //   const hasChildren = await this.categoryModel.findOne({ children: id });
+    //   if (hasChildren) {
+    //     throw new BadRequestException(`Danh mục với ID ${id} chứa danh mục con và không thể xóa.`);
+    //   }
+
+    //   //được xoá nếu không tồn tại sản phẩm hoặc danh mục con
+    //   const result = await this.categoryModel.deleteOne({ _id: id });
+    //   if (result.deletedCount === 0) {
+    //     throw new NotFoundException(`Không tìm thấy ${id} để xóa danh mục.`);
+    //   } else {
+    //     return { message: `Đã xóa danh mục với ID ${id}.` };
+    //   }
+
+    // }
+
+    //API  để xóa danh mục
     async deleteCategory(id:string) {
       //check category exist?
-      const category = await this.categoryModel.findById(id);
-      if(!category) {
-        throw new NotFoundException(`Không tìm thấy danh mục với ID ${id} để xóa.`);
-      }
-
-      //check category có chứa danh mục không?
-      const hasProducts = await this.categoryModel.findOne({
-        _id: id,
-        products: {
-          $exists: true, $not: { $size: 0 } 
-        }
-      })
-      if (hasProducts) {
-        throw new BadRequestException(`Danh mục với ID ${id} chứa sản phẩm và không thể xóa.`);
-      }
-
-      //check danh mục con
-      const hasChildren = await this.categoryModel.findOne({ children: id });
-      if (hasChildren) {
-        throw new BadRequestException(`Danh mục với ID ${id} chứa danh mục con và không thể xóa.`);
-      }
-
-      //được xoá nếu không tồn tại sản phẩm hoặc danh mục con
-      const result = await this.categoryModel.deleteOne({ _id: id });
-      if (result.deletedCount === 0) {
-        throw new NotFoundException(`Không tìm thấy ${id} để xóa danh mục.`);
-      } else {
-        return { message: `Đã xóa danh mục với ID ${id}.` };
-      }
+      await this.deleteCategoryRecursively(id);
+      return { message: `Đã xóa danh mục và tất cả danh mục con của danh mục với ID ${id}.` };
 
     }
+    
 
+    async deleteCategoryRecursively(categoryId:string):Promise<void> {
+      //Kiểm tra danh mục có tồn tại hay không?
+      const category = await this.categoryModel.findById(categoryId);
+      if(!category) {
+        throw new NotFoundException(`Không tìm thấy danh mục với ID ${categoryId} để xóa.`);
+      }
+
+      //Kiểm tra sản phẩm trong danh mục
+      if (category.products && category.products.length > 0) {
+        throw new BadRequestException(`Danh mục với ID ${categoryId} có chứa sản phẩm và không thể xóa.`);
+      }
+
+      //kiểm tra danh mục con trong danh mục
+      if (category.children && category.children.length > 0) {
+        throw new BadRequestException(`Danh mục với ID ${categoryId} chứa danh mục con và không thể xóa.`);
+      }
+      
+
+      //kiểm tra danh mục có chứa sản phẩm hay không
+      const result = await this.categoryModel.deleteOne({ _id: categoryId });
+      if (result.deletedCount === 0) {
+        throw new NotFoundException(`Không thể xóa danh mục với ID ${categoryId}`);
+      }
+      // return null;
+    }
 
     async getAllCategoriesWithFull(): Promise<Category[]> {
         // Lấy tất cả danh mục gốc (các danh mục không có cha)
@@ -267,4 +301,4 @@ export class CategoryService {
     }    
 
 
-    }
+  }

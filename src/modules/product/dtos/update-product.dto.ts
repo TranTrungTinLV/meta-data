@@ -45,14 +45,13 @@ export class UpdateProductDto {
   @ApiProperty({ description: 'Ghi chú sản phẩm', required: false })
   readonly note?: string;
 
-  @ApiPropertyOptional({ type: 'array', items: { type: 'string', format: 'binary' } })
+  @ApiPropertyOptional({ type: 'array', items: { type: 'string', format: 'binary' }, description: 'Danh sách ảnh mới' })
   @IsArray()
   @IsOptional()
-  newImages?: string[];
+  newImages?: Express.Multer.File[];
 
+  @ApiPropertyOptional({ type: 'array', items: { type: 'string' }, description: 'Danh sách ảnh cần xóa' })
   @IsArray()
   @IsOptional()
-  @ApiPropertyOptional({ type: 'array', items: { type: 'string' } })
   deleteImages?: string[];
-
 }

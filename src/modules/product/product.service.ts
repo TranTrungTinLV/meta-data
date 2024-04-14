@@ -48,23 +48,22 @@ export class ProductService {
         return newProduct;
     }
 
-    async updateproduct(productId:string,updateProductDto: UpdateProductDto,newImageFiles: Express.Multer.File[]): Promise<Product>{
+    async updateproduct(productId:string,updateProductDto: UpdateProductDto,newImages: Express.Multer.File[]): Promise<Product>{
         const product = await this.productModel.findById(productId);
         if(!product) {
           throw new NotFoundException(`Không tìm thấy ID ${productId} để thực hiện việc sửa sản phẩm`)
         }
 
-        // Xử lý ảnh mới
-    if (newImageFiles && newImageFiles.length > 0) {
-      const newImagePaths = newImageFiles.map(file => `images/products/${file.filename}`);
-      product.images = product.images.concat(newImagePaths);
-    }
-
-    // Xóa các ảnh theo yêu cầu
-    if (updateProductDto.deleteImages && updateProductDto.deleteImages.length > 0) {
-      product.images = product.images.filter(img => !updateProductDto.deleteImages.includes(img));
-    }
-
+        //Nếu client thêm ảnh
+        if (newImages && newImages.length) {
+          const newImagePaths = newImages.map(file => `images/products/${file.filename}`);
+          product.images = [...product.images, ...newImagePaths];
+        }
+        
+         // Xử lý xóa ảnh
+      if (updateProductDto.deleteImages && updateProductDto.deleteImages.length) {
+        product.images = product.images.filter(img => !updateProductDto.deleteImages.includes(img));
+      }
         Object.entries(updateProductDto).forEach(([key,value]) => {
           if (value !== undefined && value !== '' && key !== 'newImages' && key !== 'deleteImages') {
             product[key] = value;
@@ -121,7 +120,8 @@ export class ProductService {
         let query = {};
         if(keyword){
           query = {name: {$regex: keyword, $options: 'i' }}
-          const products = await this.productModel.find(query).populate('owner','username').exec();
+          const products = await this.productModel.find(query).populate('category_id','name').exec();
+          console.log(products)
           if(products.length === 0){
             throw new NotFoundException(`Oops, we don’t have any results for "${keyword}"`);
           }
@@ -129,7 +129,7 @@ export class ProductService {
         }
         else
         {
-          return this.productModel.find().populate('category_id','name')
+          return this.productModel.find().populate('category_id')
     
         }
       }
