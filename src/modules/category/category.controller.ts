@@ -13,6 +13,7 @@ export class CategoryController {
   constructor(private readonly categoryService: CategoryService) {
   }
 
+  //Đăng
   @Public()
   @Post()
   create(@Body() body: CreateCategoryDto){
@@ -26,13 +27,9 @@ export class CategoryController {
     // return this.categoryService.findAllWithProductCount()
   }
 
-  @Get(':categoryId')
-  @Public()
-  async getIdProductFromCategory(@Param('categoryId') categoryId: string): Promise<Category> {
-    return this.categoryService.findProductsByCategory(categoryId)
-  }
 
 
+  //Sửa 
   @Patch(':categoryId')
   @Public()
   @HttpCode(HttpStatus.OK)
@@ -42,6 +39,7 @@ export class CategoryController {
     return this.categoryService.updateCategory(categoryId,body)
   }
 
+  //xoá
   @Delete(':categoryId')
   @Public()
   async delete(@Param('categoryId') categoryId: string){
