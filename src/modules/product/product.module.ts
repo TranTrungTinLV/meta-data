@@ -6,13 +6,14 @@ import { User, UserSchema } from '../users/schema/create-user.schema';
 import { Product, ProductSchema } from './schema/create-product.schema';
 import { Category, CategorySchema } from '../category/schema/category.schema';
 import { UsersModule } from '../users/users.module';
-import { FavouriteModule } from '../favourite/favourite.module';
-import { Favourite, FavouriteSchema } from '../favourite/schema/create-favourtie.schema';
+import { Favorite, FavoriteSchema } from '../favorite/schema/create-favorite.schema';
+// import { FavouriteModule } from '../favourite/favourite.module';
+
+
 
 @Module({
   imports: [
     UsersModule,
-    FavouriteModule,
     forwardRef(() => ProductModule),
     MongooseModule.forFeature(
     [
@@ -22,7 +23,7 @@ import { Favourite, FavouriteSchema } from '../favourite/schema/create-favourtie
       name: Category.name,
       schema: CategorySchema
     },
-    {name: Favourite.name, schema: FavouriteSchema},
+    {name: Favorite.name, schema: FavoriteSchema},
 
   ]
   )],

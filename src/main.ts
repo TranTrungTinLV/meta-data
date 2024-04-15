@@ -51,7 +51,7 @@ async function bootstrap() {
     )
     .addTag('Auth')
     .addTag('Product')
-    .addTag('Favourite')
+    .addTag('Favorite')
     .addTag('Category')
     .addTag('Register')
     .build();

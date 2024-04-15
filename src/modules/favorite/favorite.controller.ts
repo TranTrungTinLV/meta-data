@@ -1,23 +1,27 @@
-import { Controller, Param, Post, Req } from '@nestjs/common';
+import { Body, Controller, Param, Post, Req } from '@nestjs/common';
 import { FavoriteService } from './favorite.service';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiConsumes, ApiSecurity, ApiTags } from '@nestjs/swagger';
 import { Public } from 'src/common/decorators/public.decorations';
 import { Roles } from 'src/common/decators/roles.decorator';
 import { Role } from '../users/schema/create-user.schema';
+import { FavoriteDto } from './dtos/favourite.dto';
 
 @ApiTags('Favorite')
 @Controller('favorite')
+@ApiSecurity('bearerAuth')
 export class FavoriteController {
-  constructor(private readonly favoriteService: FavoriteService) {}
+  constructor(
+    private readonly favoriteService: FavoriteService
+    ) {}
 
-  @Post('add')
+  @Post('add/:product_id')
   @Roles([Role.User])
   addFavourite(
     @Req() request: any,
-    @Param('productId') productId: string
+    @Param('product_id') product_id: string
   ) {
     const username = request.user.username;
     console.log(username)
-    return null;
+    return this.favoriteService.addFavorite(username,product_id);
   }
 }

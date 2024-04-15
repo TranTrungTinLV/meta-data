@@ -6,7 +6,6 @@ import { v4 } from 'uuid';
 export enum Role {
   User = 'customer',
   Admin = 'admin',
-  Staff = 'staff',
 }
 
 @Schema({

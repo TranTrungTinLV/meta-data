@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
-import mongoose, { Types } from "mongoose";
+import mongoose, { Document, Types } from "mongoose";
 import { Product } from "src/modules/product/schema/create-product.schema";
 import { User } from "src/modules/users/schema/create-user.schema";
 
@@ -7,12 +7,12 @@ import { User } from "src/modules/users/schema/create-user.schema";
     timestamps: true
 })
 
-export class Favorite {
+export class Favorite extends Document {
     @Prop({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
     })
-    user_id: User;
+    user_id: Types.ObjectId;
 
     @Prop({
         type: [mongoose.Schema.Types.ObjectId],

@@ -23,6 +23,7 @@ import { APP_INTERCEPTOR } from '@nestjs/core';
 import { CacheService } from './utils/cache.service';
 import { RegisterModule } from './modules/register/register.module';
 import { CategoryModule } from './modules/category/category.module';
+import { FavoriteModule } from './modules/favorite/favorite.module';
 // import { CacheService } from './modules/cache/cache.service';
 // import { CacheModule } from './modules/cache/cache.module';
 @Module({
@@ -73,7 +74,7 @@ import { CategoryModule } from './modules/category/category.module';
     CategoryModule,
     RegisterModule,
     MailerModule,
-  
+    FavoriteModule, 
     BullModule.forRootAsync({
       useFactory: async(configService: ConfigService) => ({
         redis: {
