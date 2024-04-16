@@ -13,7 +13,7 @@ import {InjectQueue} from '@nestjs/bull'
 import {Queue} from 'bull'
 
 import { ChangePasswordDto } from './dto/change-password.dto';
-import { CacheService } from 'src/utils/cache.service';
+import { CacheService } from 'src/common/utils/cache.service';
 // import { CacheService } from 'src/modules/cache/cache.service';
 // import * as redisStore from 'cache-manager-redis-store';
 @Injectable()

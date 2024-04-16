@@ -10,7 +10,7 @@ import { MailerService } from '../mailer/mailer.service';
 import { InjectQueue } from '@nestjs/bull';
 import { Queue } from 'bull';
 import * as bcrypt from 'bcrypt'
-import { CacheService } from 'src/utils/cache.service';
+import { CacheService } from 'src/common/utils/cache.service';
 import { UpdateUser } from './dto/update-user.dto';
 import { PasswordReset } from './schema/passwordReset.schema';
 

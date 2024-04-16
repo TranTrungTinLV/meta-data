@@ -7,10 +7,16 @@ import { join } from 'path';
 
 import { ValidationPipe } from '@nestjs/common';
 import { rateLimit } from 'express-rate-limit'
+import { existsSync, mkdirSync } from 'fs';
 
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  const storageDir = './storage/images'
+  if (!existsSync(storageDir)) {
+    mkdirSync(storageDir, { recursive: true });
+  }
+
   app.enableCors();
   // app.useGlobalPipes(new ValidationPipe({
   //   transform: true, // Kích hoạt chuyển đổi tự động
@@ -18,10 +24,14 @@ async function bootstrap() {
   //     enableImplicitConversion: true, // Cho phép chuyển đổi ngầm định
   //   }
   // }));
+
+
+  
+
   
   //Serve static 
-  app.useStaticAssets(join(__dirname,'..','storage'),{
-    prefix: 'images\introductions'
+  app.useStaticAssets(join(__dirname,'..','storage/images'),{
+    prefix: '/storage/images'
   })
   
 

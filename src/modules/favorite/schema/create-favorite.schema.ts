@@ -15,10 +15,10 @@ export class Favorite extends Document {
     user_id: Types.ObjectId;
 
     @Prop({
-        type: [mongoose.Schema.Types.ObjectId],
+        type: mongoose.Schema.Types.ObjectId,
         ref: 'Product',
     })
-    product_id: Product[]
+    product_id: Types.ObjectId
 
 }
 

@@ -4,11 +4,11 @@ import { ApiConsumes, ApiOperation, ApiQuery, ApiResponse, ApiSecurity, ApiTags 
 import { CreateProductDto } from './dtos/create-product.dto';
 import { Public } from 'src/common/decorators/public.decorations';
 import { FileFieldsInterceptor, FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
-import { importExcel2Data, multerExcelOptions } from 'src/utils/exceltoJSON';
+import { importExcel2Data, multerExcelOptions } from 'src/common/utils/exceltoJSON';
 import { Roles } from 'src/common/decators/roles.decorator';
 // import { Role } from '../users/schema/create-user.schema';
 import { Product } from './schema/create-product.schema';
-import { multerOptions } from 'src/utils/uploadImage';
+import { multerOptions } from 'src/common/utils/uploadImage';
 import { UpdateProductDto } from './dtos/update-product.dto';
 import { RolesGuard } from 'src/common/guard/roles.gaurd';
 import { PaginateResult } from 'mongoose';

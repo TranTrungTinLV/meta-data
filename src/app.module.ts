@@ -20,7 +20,7 @@ import { RedisModule } from '@nestjs-modules/ioredis';
 import * as redisStore from 'cache-manager-redis-store';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 
-import { CacheService } from './utils/cache.service';
+import { CacheService } from './common/utils/cache.service';
 import { RegisterModule } from './modules/register/register.module';
 import { CategoryModule } from './modules/category/category.module';
 import { FavoriteModule } from './modules/favorite/favorite.module';

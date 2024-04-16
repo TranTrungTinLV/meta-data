@@ -9,7 +9,7 @@ import {BullModule} from '@nestjs/bull'
 import { AuthGuard } from '../../common/guard/auth.gaurd';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
-import { CacheService } from 'src/utils/cache.service';
+import { CacheService } from 'src/common/utils/cache.service';
 import { CacheModule } from '@nestjs/cache-manager';
 import * as redisStore from 'cache-manager-redis-store';
 

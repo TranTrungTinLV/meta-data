@@ -15,7 +15,7 @@ import { RolesGuard } from '../../common/guard/roles.gaurd';
 import { MailerModule } from '../mailer/mailer.module';
 import { EmailConsumer } from './consumers/email.consumer';
 import { CacheModule } from '@nestjs/cache-manager';
-import { CacheService } from 'src/utils/cache.service';
+import { CacheService } from 'src/common/utils/cache.service';
 import { UserSchema } from './schema/create-user.schema';
 import { PasswordResetSchema } from './schema/passwordReset.schema';
 import { ProductSchema } from '../product/schema/create-product.schema';

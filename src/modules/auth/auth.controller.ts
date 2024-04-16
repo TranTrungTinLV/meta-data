@@ -11,9 +11,9 @@ import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login-dto';
 import { UpdateUser } from '../users/dto/update-user.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { multerOptions } from 'src/utils/uploadImage';
+import { multerOptions } from 'src/common/utils/uploadImage';
 import { ChangePasswordDto } from './dto/change-password.dto';
-import { CacheService } from 'src/utils/cache.service';
+import { CacheService } from 'src/common/utils/cache.service';
 
 @ApiTags('Auth')
 @UseGuards(RolesGuard)

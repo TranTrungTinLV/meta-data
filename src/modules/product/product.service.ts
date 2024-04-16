@@ -10,6 +10,7 @@ import { Category } from '../category/schema/category.schema';
 import { name } from 'ejs';
 import { Http2ServerRequest } from 'http2';
 import { FilterProductDto } from './dtos/filter-product.dto';
+import { Favorite } from '../favorite/schema/create-favorite.schema';
 
 @Injectable()
 export class ProductService {
@@ -18,6 +19,7 @@ export class ProductService {
         @InjectModel(Product.name)  private readonly productModelpag: PaginateModel<Product>,
 
         @InjectModel(Category.name) private readonly categoryModel: Model<Category>,
+        // @InjectModel(Favorite.name) private readonly favoriteModel: Model<Favorite>
         private readonly userService: UsersService
     ){
         
@@ -93,6 +95,8 @@ export class ProductService {
             products: productId
           }
         })
+
+        // await this.favoriteModel.findByIdAndUpdate()
         return result;
       }
 

@@ -74,24 +74,6 @@ Nest is [MIT licensed](LICENSE).
 
 
 
-## Env
-
-- DATABASE_URI = mongodb://localhost:27017/metadata
-- JWT_SECRET = top1server
-- JWT_EXPIRE = 30d
-
-
-## Config Redis
-- QUEUE_HOST = localhost
-- QUEUE_PORT = 6379
-
-## Sendgrid EMAIL SERVICE
-- MAILER_KEY=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
-- MAILER_ADDR=noreply@sgod.vn
-- COM_NAME=Sgod
-- COM_HOME=https://sgod.vn
-- NAME=Sgod
-- TIME_DELAY_VERIFY_EMAIL=300000
 
 
 ## Redis
