@@ -47,7 +47,7 @@ import {
     @IsString()
     readonly fullname: string;
   
-    @ApiProperty({ required: false,example: 'avatar-url', description: 'URL ảnh đại diện'})
+    @ApiProperty({ required: false,type: 'string', format: 'binary', example: 'avatar-url', description: 'URL ảnh đại diện'})
     @IsString()
     readonly avatar: string;
   
