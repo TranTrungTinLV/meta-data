@@ -3,7 +3,7 @@ import { Injectable } from '@nestjs/common';
 import {Job} from 'bull'
 import { Model } from 'mongoose';
 import { MailerService } from 'src/modules/mailer/mailer.service';
-import { PasswordReset } from '../users/schema/passwordReset.schema';
+import { PasswordReset } from '../schema/passwordReset.schema';
 import { InjectModel } from '@nestjs/mongoose';
 
 @Processor('send-mail')
@@ -14,7 +14,7 @@ export class EmailConsumer {
     ){}
     @Process('register')
     async registerEmail(job: Job<unknown>){
-        console.log("mã nè",job.data);
+        console.log("haha",job.data);
         const time1 = new Date();
         console.log(time1)
         await this.mailService.sendEmail(

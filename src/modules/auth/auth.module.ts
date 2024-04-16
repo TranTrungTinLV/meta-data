@@ -53,10 +53,10 @@ import * as redisStore from 'cache-manager-redis-store';
     AuthService,
     JwtStrategy,
     CacheService,
-    {
-      provide: APP_GUARD,
-      useClass: AuthGuard,
-    },
+    // {
+    //   provide: APP_GUARD,
+    //   useClass: AuthGuard,
+    // },
   ],
   exports: [JwtModule]
 })

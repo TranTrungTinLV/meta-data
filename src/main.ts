@@ -63,6 +63,7 @@ async function bootstrap() {
     .addTag('Product')
     .addTag('Favorite')
     .addTag('Category')
+    .addTag('Register')
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);

@@ -21,8 +21,10 @@ import * as redisStore from 'cache-manager-redis-store';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 
 import { CacheService } from './common/utils/cache.service';
+import { RegisterModule } from './modules/register/register.module';
 import { CategoryModule } from './modules/category/category.module';
 import { FavoriteModule } from './modules/favorite/favorite.module';
+import { UploadsModule } from './modules/uploads/uploads.module';
 // import { CacheService } from './modules/cache/cache.service';
 // import { CacheModule } from './modules/cache/cache.module';
 @Module({
@@ -71,6 +73,7 @@ import { FavoriteModule } from './modules/favorite/favorite.module';
     UsersModule,
     RedisModule,
     CategoryModule,
+    RegisterModule,
     MailerModule,
     FavoriteModule, 
     BullModule.forRootAsync({
@@ -82,8 +85,9 @@ import { FavoriteModule } from './modules/favorite/favorite.module';
       }),
       inject: [ConfigService]
      
-    })
+    }),
     // CacheModule
+    UploadsModule
   ],
   providers: [CacheService]
  

@@ -13,8 +13,7 @@ import { UpdateUser } from '../users/dto/update-user.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { multerOptions } from 'src/common/utils/uploadImage';
 import { ChangePasswordDto } from './dto/change-password.dto';
-import { CreateRegistorDto } from './dto/create-users.dto';
-
+import { CacheService } from 'src/common/utils/cache.service';
 
 @ApiTags('Auth')
 @UseGuards(RolesGuard)
@@ -30,27 +29,13 @@ export class AuthController {
 
     @Public()
     @Post('login')
-    @ApiOperation({description: 'Login',summary: 'Login'})
+    @ApiOperation({description: 'Đăng nhập'})
     @HttpCode(HttpStatus.OK)
     @ApiOperation({ summary: 'User login' })
     @ApiResponse({ status: HttpStatus.OK, description: 'Login successful' })
     @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Invalid credentials' })
   async login(@Body() loginDto: LoginDto) {
     return await this.authService.login(loginDto.loginIdentifier, loginDto.password);
-  }
-
-
-  @Post('/register')
-  @ApiOperation({description: 'Signup',summary: 'Signup'})
-  @ApiConsumes('multipart/form-data')
-
-    @HttpCode(HttpStatus.OK)
-    @ApiOperation({ summary: 'User Signup' })
-    @ApiResponse({ status: HttpStatus.OK, description: 'Signup successful' })
-    @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Invalid credentials' })
-  async registration(@Body() Registor: CreateRegistorDto) {
-    console.log(`Registration of user '${Registor.username}' in progress.`);
-    return await this.userService.registerUser(Registor);
   }
 
 
@@ -63,8 +48,6 @@ export class AuthController {
   async logout(@Req() request: any) {
     return { message: 'Logout successful' };
   }
-
-  
 
 
 
@@ -100,10 +83,9 @@ export class AuthController {
   })
   async resetPasswordOTP(@Body('email') email: string,@Body('newPassword') newPassword: string,@Body('otp') otp: string) {
     return await this.authService.resetPasswordOTP(email,otp,newPassword);
+    // return {  };
 
   }
-
-  
 
 
   

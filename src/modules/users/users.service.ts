@@ -1,7 +1,6 @@
-import { BadRequestException, ConflictException, HttpException, HttpStatus, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, HttpException, HttpStatus, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import mongoose from 'mongoose';
-import * as crypto from 'crypto';
 
 
 import { User } from './schema/create-user.schema';
@@ -14,9 +13,6 @@ import * as bcrypt from 'bcrypt'
 import { CacheService } from 'src/common/utils/cache.service';
 import { UpdateUser } from './dto/update-user.dto';
 import { PasswordReset } from './schema/passwordReset.schema';
-import { CreateRegistorDto } from '../auth/dto/create-users.dto';
-import { validateEmail } from 'src/common/utils/checkEmail';
-
 
 @Injectable()
 export class UsersService {
@@ -70,7 +66,6 @@ export class UsersService {
     }
   }
   
-  
   //addPurchaseProducts
   // async addPurchasedProducts(userId: string, orderIds: string[]): Promise<User> {
   //   return await this.UserModel.findByIdAndUpdate(userId, {
@@ -90,71 +85,6 @@ export class UsersService {
       }
     )
   }
-
-  async registerUser(signUpDto: CreateRegistorDto) {
-    const {
-      username,
-      password,
-      email,
-      role,
-      slug
-    } = signUpDto;
-
-    // if(!this.validateEmail(email)) {
-    //   throw new HttpException('email không hợp lệ', HttpStatus.BAD_REQUEST);
-    // }
-    if (email && !validateEmail(email)) {
-      throw new HttpException('Email không hợp lệ hoặc không phải là địa chỉ Gmail', HttpStatus.BAD_REQUEST);
-    }
-
-    // Check if the username or email is already taken
-    const existingUser = await this.UserModel.findOne({ username });
-    // const existingEmail = await this.userModel.findOne({ email });
-    let existingEmail = null;
-    if (email) {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      existingEmail = await this.UserModel.findOne({ email: email });
-    }
-
-    if (existingEmail) {
-      throw new ConflictException('Email already taken');
-    }
-
-    if (existingUser) {
-      throw new ConflictException('Username already taken');
-    }
-
-    const encryptedPassword = crypto
-      .createHash('sha256')
-      .update(password)
-      .digest('hex');
-
-    const user = new this.UserModel({
-      username,
-      password: encryptedPassword,
-      role,
-
-  ...(email && { email }),
-      slug
-    });
-    try {
-      await user.save();
-      return {message: 'User registered successfully', userId: user._id}
-    } catch (error) {
-      if (error.code === 11000) {
-        throw new ConflictException('Email đã tồn tại');
-      }
-      throw error;
-    }
-    const payload = { username: username, role:user.role, sub: user.id };
-
-    // return {
-    //   access_token: await this.jwtService.signAsync(payload),
-    // };
-  }
-
-
-
 
   // async findOneWithPassword(username: string) {
   //   const user = await this.UserModel.findOne({ username });
@@ -227,7 +157,10 @@ export class UsersService {
     return user;
   }
   
- 
+  validateEmail(email: string) {
+    const regex = /^[\w-\.]+@gmail\.com$/;
+    return regex.test(email);
+  }
 
 
   async sendForgotPasswordOtp(email: string) {

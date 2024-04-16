@@ -13,7 +13,7 @@ import * as redisStore from 'cache-manager-redis-store';
 import { RolesGuard } from '../../common/guard/roles.gaurd';
 
 import { MailerModule } from '../mailer/mailer.module';
-import { EmailConsumer } from '../jobs/email.consumer';
+import { EmailConsumer } from './consumers/email.consumer';
 import { CacheModule } from '@nestjs/cache-manager';
 import { CacheService } from 'src/common/utils/cache.service';
 import { UserSchema } from './schema/create-user.schema';
@@ -77,10 +77,10 @@ import { ProductSchema } from '../product/schema/create-product.schema';
   ],
   providers: [
     UsersService,
-    {
-      provide: APP_GUARD,
-      useClass: RolesGuard,
-    },
+    // {
+    //   provide: APP_GUARD,
+    //   useClass: RolesGuard,
+    // },
     CacheService,
     EmailConsumer
 
