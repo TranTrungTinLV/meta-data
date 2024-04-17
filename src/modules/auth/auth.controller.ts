@@ -1,267 +1,169 @@
-import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post, Put, Query, Req, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
+// ** Libraries
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Put,
+  Query,
+  Req,
+  UploadedFile,
+  UseGuards,
+  UseInterceptors,
+} from '@nestjs/common';
+import {
+  ApiBody,
+  ApiConsumes,
+  ApiOperation,
+  ApiTags,
+} from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
-import { ApiBearerAuth, ApiBody, ApiConsumes, ApiOperation, ApiProperty, ApiResponse, ApiSecurity, ApiTags } from '@nestjs/swagger';
-import { Roles } from 'src/common/decators/roles.decorator';
-import { Public } from 'src/common/decorators/public.decorations';
-import { RolesGuard } from 'src/common/guard/roles.gaurd';
-import { Role, User } from 'src/modules/users/schema/create-user.schema';
-import { UsersService } from 'src/modules/users/users.service';
-
-import { AuthService } from './auth.service';
-import { LoginDto } from './dto/login-dto';
-import { UpdateUser } from '../users/dto/update-user.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { multerOptions } from 'src/common/utils/uploadImage';
-import { ChangePasswordDto } from './dto/change-password.dto';
-import { CreateRegistorDto } from './dto/create-users.dto';
 
+// ** DI injections
+import { UsersService } from 'src/modules/users/users.service';
+import { AuthService } from './auth.service';
+import { LoginDto } from './dtos/login-dto';
+import { UpdateUser } from '../users/dtos/update-user.dto';
+import { multerOptions } from 'src/common/utils/uploadImage';
+import { ChangePasswordDto } from './dtos/change-password.dto';
+import { ETypeRole, Roles, RolesGuard } from 'src/common';
+import { User } from '../users/schema/users.schema';
+import { CreateRegisterDto, ForgotPasswordDto, ResetPasswordDto } from './dtos';
+import { docUsers } from 'src/common/swaggers/docs/user.swagger.doc';
 
 @ApiTags('Auth')
 @UseGuards(RolesGuard)
 @Controller('auth')
-@ApiSecurity('bearerAuth')
-@ApiConsumes('multipart/form-data')
-
 export class AuthController {
   constructor(
     private authService: AuthService,
     private readonly userService: UsersService,
-    ) {}
+  ) {}
 
-    @Public()
-    @Post('login')
-    @ApiOperation({description: 'Login',summary: 'Login'})
-    @HttpCode(HttpStatus.OK)
-    @ApiOperation({ summary: 'User login' })
-    @ApiResponse({ status: HttpStatus.OK, description: 'Login successful' })
-    @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Invalid credentials' })
-  async login(@Body() loginDto: LoginDto) {
-    return await this.authService.login(loginDto.loginIdentifier, loginDto.password);
+  @Post('users')
+  @docUsers.register('register user')
+  async register(@Body() body: CreateRegisterDto) {
+    return await this.authService.registerUser(body);
   }
 
-
-  @Public()
-  @Post('/register')
-  @ApiBody({
-    schema: {
-      type: 'object',
-      properties: {
-        username: {type: 'string'},
-        password: {type: 'string'},
-        email: {type: 'string'},
-        sex: {type: 'string'},
-        birthday: {type: 'string'},
-        phone: {type: 'string'},
-        fullname: {type: 'string'},
-        avatar: {
-          type: 'string',
-          format: 'binary'
-        }
-      },
-      required: ['username', 'password'],
-
-    }
-  })
-  @ApiOperation({description: 'Signup',summary: 'Signup'})
-  @ApiConsumes('multipart/form-data')
-  @UseInterceptors(FileInterceptor('avatar',multerOptions('avatar')))
-
-    @HttpCode(HttpStatus.OK)
-    @ApiOperation({ summary: 'User Signup' })
-    @ApiResponse({ status: HttpStatus.OK, description: 'Signup successful' })
-    @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Invalid credentials' })
-  async registration(@Body() registerDto: CreateRegistorDto,@UploadedFile() file: Express.Multer.File) {
-    if(file){
-      registerDto.avatar = `images/avatar/${file.filename}`
-    }
-    console.log(`Registration of user '${registerDto.username}' in progress.`);
-    return await this.userService.registerUser(registerDto);
+  @Post('login')
+  @docUsers.login('login user')
+  async login(@Body() body: LoginDto) {
+    return await this.authService.login(
+      body
+    );
   }
 
-
-  @Public()
   @Post('logout')
-  @HttpCode(HttpStatus.OK)
-  @ApiProperty({
-    description: 'Đăng xuất'
-  })
+  @UseGuards(AuthGuard('jwt'))
+  @docUsers.login('logout user')
   async logout(@Req() request: any) {
     return { message: 'Logout successful' };
   }
 
-  
-
-
-
-  @Public()
-  @Post('forgot-passwordOTP')
-  // @ApiConsumes('multipart/form-data')
-  @ApiBody({
-    schema: {
-      type: 'object',
-      properties: {
-        email: { type: 'string', example: 'user@example.com' },
-      },
-    },
-  })
-  async forgotPasswordOTP(@Body('email') email: string) {
-    return await this.userService.sendForgotPasswordOtp(email);
-    
+  @Post('forgot-password')
+  @docUsers.forgotPassword('forgot password')
+  async forgotPassword(@Body() body: ForgotPasswordDto) {
+    return await this.userService.sendForgotPasswordOtp(body.email);
   }
 
-
-  @Public()
-  @Post('reset-passwordOTP')
-  @ApiBody({
-    schema: {
-      type: 'object',
-      properties: {
-        email: { type: 'string', example: 'user@example.com' },
-        newPassword: {type: 'string', example: 'nhập mật khẩu mới vào'},
-        otp: {type: 'number', example: 'nhập otp của bạn được gửi qua mail'}
-      },
-      required: ['email', 'newPassword', 'otp'],
-    },
-  })
-  async resetPasswordOTP(@Body('email') email: string,@Body('newPassword') newPassword: string,@Body('otp') otp: string) {
-    return await this.authService.resetPasswordOTP(email,otp,newPassword);
-
+  @Post('reset-password')
+  @docUsers.resetPassword('reset password')
+  async resetPassword(@Body() body: ResetPasswordDto) {
+    return await this.authService.resetPasswordOTP(body);
   }
 
-  
-
-
-  
-  @UseGuards(AuthGuard('jwt'))
-  @ApiOperation({
-    summary: 'Khi login xong thì trả về token và lấy token đó truyền vào '
-  })
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @docUsers.getProfile('get profile')
   @Get('profile')
   getProfile(@Req() req: any) {
-    return req.user
+    return req.user;
   }
 
-  @Roles([Role.Admin])
-  @ApiOperation({summary: 'lấy hết user', description: 'Yêu cầu Admin'})
+  @Roles([ETypeRole.Admin])
+  @UseGuards(RolesGuard)
   @Get('users')
-  getAll(){
-    return this.userService.findAll()
+  @docUsers.getAll('get all user')
+  getAll() {
+    return this.userService.findAll();
   }
-  @Roles(Roles[Role.Admin])
+
+  @Roles(Roles[ETypeRole.Admin])
+  @UseGuards(RolesGuard)
   @Get()
-  getFilter(@Query('keyword') keyword:string){
-    return this.userService.findWithFilter(keyword)
+  @docUsers.getFilter('get user filter')
+  getFilter(@Query('keyword') keyword: string) {
+    return this.userService.findWithFilter(keyword);
   }
 
-
-  //delete USer
-  @Roles([Role.Admin])
-  @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'User delete' })
-  @ApiResponse({ status: HttpStatus.OK, description: 'Delete successful' })
-  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Lỗi xóa' })
-  @ApiOperation({summary: 'Xóa user', description: 'Yêu cầu Admin'})
+  @Roles([ETypeRole.Admin])
+  @UseGuards(RolesGuard)
   @Delete(':id')
-  async deleteUser(@Param('id') id:string){
-    return this.userService.deleteUser(id)
+  @docUsers.deleteUser('delete user')
+  async deleteUser(@Param('id') id: string) {
+    return this.userService.deleteUser(id);
   }
 
-  //blocked User
-  @ApiOperation({ summary: 'User block' })
+  @Roles([ETypeRole.Admin])
+  @UseGuards(RolesGuard)
   @Patch(':userId/block-user')
-  @Roles([Role.Admin])
-  async blockUser(@Param('userId') userId: string){
-    return this.userService.blockUser(userId)
+  @docUsers.blockUser('block user')
+  async blockUser(@Param('userId') userId: string) {
+    return this.userService.blockUser(userId);
   }
 
-  //unblocked User
-  @ApiOperation({ summary: 'User unblock' })
+  @Roles([ETypeRole.Admin])
+  @UseGuards(RolesGuard)
   @Patch(':userId/unblock-user')
-  @Roles([Role.Admin])
-  async unblockUser(@Param('userId') userId: string){
-    return this.userService.unblockUser(userId)
+  @docUsers.unblockUser('unlock user')
+  async unblockUser(@Param('userId') userId: string) {
+    return this.userService.unblockUser(userId);
   }
 
-  @ApiBody({
-    schema: {
-      type: 'object',
-      properties: {
-        email: {type: 'string'},
-        sex: {type: 'string'},
-        birthday: {type: 'string'},
-        phone: {type: 'string'},
-        fullname: {type: 'string'},
-        avatar: {
-          type: 'string',
-          format: 'binary'
-        }
-      }
-    }
-  })
   @ApiConsumes('multipart/form-data')
-  //update user
-  @ApiOperation({ summary: 'update User' })
-  @UseInterceptors(FileInterceptor('avatar',multerOptions('avatar')))
+  @UseInterceptors(FileInterceptor('avatar', multerOptions('avatar')))
   @Put('update')
   @UseGuards(AuthGuard('jwt'))
-  async updateUser(@Req() req, @Body() updateUserDto: UpdateUser, @UploadedFile() file: Express.Multer.File): Promise<User>{
-    if(file){
-      updateUserDto.avatar = `images/avatar/${file.filename}`
+  @docUsers.updateUser('update user')
+  async updateUser(
+    @Req() req,
+    @Body() updateUserDto: UpdateUser,
+    @UploadedFile() file: Express.Multer.File,
+  ): Promise<User> {
+    if (file) {
+      updateUserDto.avatar = `images/avatar/${file.filename}`;
     }
-    return this.userService.updateUser(req.user.id,updateUserDto)
+    return this.userService.updateUser(req.user.id, updateUserDto);
   }
 
-
-
-  // updateUserById
-  @ApiBody({
-    schema: {
-      type: 'object',
-      properties: {
-        email: {type: 'string'},
-        sex: {type: 'string'},
-        birthday: {type: 'string'},
-        phone: {type: 'string'},
-        fullname: {type: 'string'},
-        avatar: {
-          type: 'string',
-          format: 'binary'
-        }
-      }
-    }
-  })
   @ApiConsumes('multipart/form-data')
-  @UseInterceptors(FileInterceptor('avatar',multerOptions('avatar')))
+  @UseInterceptors(FileInterceptor('avatar', multerOptions('avatar')))
+  @Roles([ETypeRole.Admin])
+  @UseGuards(RolesGuard)
   @Patch('update/:userId')
-  @Roles([Role.Admin])
-  @ApiOperation({summary: 'Update user thông qua Role Admin'})
-  async updateUserById(@Param('userId') userId: string, @Body() updateUserDto: UpdateUser, @UploadedFile() file: Express.Multer.File): Promise<User>{
-    if(file){
-      updateUserDto.avatar = `images/avatar/${file.filename}`
+  @docUsers.updateUserById('update user by Id')
+  async updateUserById(
+    @Param('userId') userId: string,
+    @Body() updateUserDto: UpdateUser,
+    @UploadedFile() file: Express.Multer.File,
+  ): Promise<User> {
+    if (file) {
+      updateUserDto.avatar = `images/avatar/${file.filename}`;
     }
-    return this.userService.updateUserById(userId,updateUserDto)
+    return this.userService.updateUserById(userId, updateUserDto);
   }
 
-
-  @ApiOperation({summary: 'Khi người dùng đăng nhập thì mới được thay đổi mật khẩu, lấy token đăng nhập bỏ vào Beearer token'})
-  // @ApiConsumes('multipart/form-data')
-  // @ApiBody(
-  //   {
-  //     schema: {
-  //       type: 'object',
-  //       properties: {
-  //         oldpassword: {type: 'string'},
-  //         newpassword: {type: 'string'}
-  //       }
-  //     }
-      
-  //   }
-  // )
   @Post('change-password')
   @UseGuards(AuthGuard('jwt'))
-  async changePassword(@Req() req, @Body() changePasswordDto: ChangePasswordDto) {
-  return this.authService.changePassword(req.user.id, changePasswordDto);
+  @docUsers.changePassword('change password')
+  async changePassword(
+    @Req() req,
+    @Body() changePasswordDto: ChangePasswordDto,
+  ) {
+    return this.authService.changePassword(req.user.id, changePasswordDto);
   }
-
-  
 }

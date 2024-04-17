@@ -1,90 +1,38 @@
+// ** Libraries
 import { Module } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
-import { JwtModule } from '@nestjs/jwt';
 import { MongooseModule } from '@nestjs/mongoose';
-import { PassportModule } from '@nestjs/passport';
-
-
-import { UsersService } from 'src/modules/users/users.service';
 import { BullModule } from '@nestjs/bull';
-import * as redisStore from 'cache-manager-redis-store';
 
-import { RolesGuard } from '../../common/guard/roles.gaurd';
-
-import { MailerModule } from '../mailer/mailer.module';
-import { EmailConsumer } from '../jobs/email.consumer';
-import { CacheModule } from '@nestjs/cache-manager';
-import { CacheService } from 'src/common/utils/cache.service';
-import { UserSchema } from './schema/create-user.schema';
-import { PasswordResetSchema } from './schema/passwordReset.schema';
-import { ProductSchema } from '../product/schema/create-product.schema';
-
+// ** DI injections
+import {
+  Product,
+  ProductSchema,
+} from '../products/schema/product.schema';
+import { RolesGuard } from '../../common/guard/roles.guard';
+import { UsersService } from 'src/modules/users/users.service';
+import { User, UserSchema } from './schema/users.schema';
+import { Email, EmailSchema } from './schema/email.schema';
+import { MailerModule } from '../emails/mailer.module';
+import { EBullQueueName } from 'src/common/enums';
+import { RedisCacheModule } from 'src/shared/redis/redis.module';
+import { JwtModule } from '@nestjs/jwt';
+import { ConsumersModule } from 'src/shared/consumers/consumers.module';
 
 @Module({
   imports: [
-    CacheModule.registerAsync({
-      useFactory: async (configService: ConfigService) => ({
-        store: redisStore, 
-     
-      host: configService.get<string>('REDIS_HOST'),
-      port: configService.get<number>('REDIS_PORT'),
-      auth_pass: configService.get<string>('REDIS_PASS'),
-      ttl: 300000,
-      isGlobal: true,
-      }),
-      inject: [ConfigService]
-      
-    }),
-    MailerModule,
-    PassportModule.register({
-      defaultStrategy: 'jwt',
-    }),
-
     MongooseModule.forFeature([
-      { name: 'User', schema: UserSchema },
-      {
-        name: 'PasswordReset', schema: PasswordResetSchema
-      },
-    {name: 'Product', schema: ProductSchema}
-
-  ]),
-    
-    BullModule.registerQueueAsync({
-      name: 'send-mail',
-      useFactory: async (configService: ConfigService) => ({
-        // name: 'send-mail',
-        redis: {
-          host: configService.get<string>('REDIS_HOST'),
-          port: configService.get<number>('REDIS_PORT'),
-          password: configService.get<string>('REDIS_PASS')
-          
-        },
-      }),
-      inject: [ConfigService]
-    
-    }),
-    BullModule.forRootAsync({
-      useFactory: async (configService: ConfigService) => ({
-        redis: {
-          host: configService.get<string>('REDIS_HOST'),
-          port: configService.get<number>('REDIS_PORT'),
-          password: configService.get<string>('REDIS_PASS'),
-        },
-      }),
-      inject: [ConfigService]
-    }),
+      { name: User.name, schema: UserSchema },
+      { name: Product.name, schema: ProductSchema },
+      { name: Email.name, schema: EmailSchema },
+    ]),
+    BullModule.registerQueue({ name: EBullQueueName.SEND_EMAIL }),
+    MailerModule,
+    JwtModule,
+    RedisCacheModule,
+    ConsumersModule,
   ],
-  providers: [
-    UsersService,
-    // {
-    //   provide: APP_GUARD,
-    //   useClass: RolesGuard,
-    // },
-    CacheService,
-    EmailConsumer
-
-  ],
+  providers: [UsersService, { provide: APP_GUARD, useClass: RolesGuard }],
   exports: [UsersService],
 })
 export class UsersModule {}

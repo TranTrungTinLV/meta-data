@@ -1,69 +1,66 @@
-import { NestFactory } from '@nestjs/core';
+// ** Libraries
+import { HttpAdapterHost, NestFactory } from '@nestjs/core';
+import { resolve } from 'path';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import * as express from 'express';
 import { AppModule } from './app.module';
-import { NestExpressApplication } from '@nestjs/platform-express';
-import { join } from 'path';
+import { Logger, ValidationPipe } from '@nestjs/common';
+import helmet from 'helmet';
+import * as express from 'express';
+import * as compression from 'compression';
 
-import { ValidationPipe } from '@nestjs/common';
-import { rateLimit } from 'express-rate-limit';
-import { existsSync, mkdirSync } from 'fs';
+// ** DI injections
+import { AllExceptionsFilter } from './common/filters';
+
+const logger = new Logger('Main');
 
 async function bootstrap() {
-  const app = await NestFactory.create<NestExpressApplication>(AppModule);
-  const storageDir = './storage/images';
-  if (!existsSync(storageDir)) {
-    mkdirSync(storageDir, { recursive: true });
-  }
+  const { PORT, NODE_ENV } = process.env;
+  const isProduction = NODE_ENV === 'production';
+  const port = PORT || 5000;
 
-  app.enableCors();
-  // app.useGlobalPipes(new ValidationPipe({
-  //   transform: true, // Kích hoạt chuyển đổi tự động
-  //   transformOptions: {
-  //     enableImplicitConversion: true, // Cho phép chuyển đổi ngầm định
-  //   }
-  // }));
-
-  //Serve static
-  app.useStaticAssets(join(__dirname, '..', 'storage/images'), {
-    prefix: '/storage/images',
+  // ** initial app
+  const app = await NestFactory.create(AppModule, {
+    bufferLogs: true,
+    logger: ['error', 'warn', 'debug', 'verbose', 'log'],
+    cors: true,
   });
 
-  // rating limit request client
-  // tránh DDos
-  // const limmiter = rateLimit({
-  //   windowMs: 15 * 60 * 1000, // 15 phút
-  //   max: 100, //giới hạn 100 req mỗi IP máy tính
-  //   standardHeaders: true, //trả về thông tin rating limit
-  //   legacyHeaders: false, //vô hiệu hóa này đọc tài liệu chưa tới
-  // })
-  // app.use(limmiter)
-  // app.set('trust proxy', 1);
-
+  //** OpenAPI
   const config = new DocumentBuilder()
-    .setTitle('METADATA')
-    .setDescription('List API tesing for Sgarden foods by Levi')
-    .setVersion('1.0')
-    .addBearerAuth(
-      {
-        type: 'http',
-        scheme: 'bearer',
-        bearerFormat: 'JWT',
-      },
-      'bearerAuth',
-    )
-    .addTag('Auth')
-    .addTag('Product')
-    .addTag('Favorite')
-    .addTag('Category')
-    .addTag('Upload')
+    .setTitle('Metadata API')
+    .setDescription('Metadata description')
+    .setLicense('Amazon Web Service', 'http://sgod.vn')
+    .setTermsOfService('5 years')
+    .setContact('SGOD', '', 'sgod.support@gmail.com')
+    .setVersion('1.0.0')
+    .addBearerAuth()
+    .addServer(`http://192.168.68.129:5909`)
+    .addServer(`http://localhost:5909`)
+    .addOAuth2()
+    .addBasicAuth()
     .build();
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api', app, document);
+  SwaggerModule.setup('swagger', app, document);
 
-  app.use('/images', express.static('storage'));
-  await app.listen(3002).then(() => {
-    console.log('successfully deploy server');
+  // ** express middleware
+  app.use(compression()).use(
+    helmet({
+      contentSecurityPolicy: isProduction ? undefined : false,
+      crossOriginEmbedderPolicy: isProduction ? undefined : false,
+      crossOriginResourcePolicy: false,
+    }),
+  );
+
+  // ** pipes & interceptors & exceptions with global scopes
+  const { httpAdapter } = app.get(HttpAdapterHost);
+  app.useGlobalFilters(new AllExceptionsFilter(httpAdapter));
+  app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
+
+  // ** serving static file;
+  app.use(`/images`, express.static(resolve(__dirname, `../storage`)));
+
+  await app.listen(port, () => {
+    logger.log(`🚀 Metadata server is running on port ${port}`);
   });
 }
 bootstrap();
