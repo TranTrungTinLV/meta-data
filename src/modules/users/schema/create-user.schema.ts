@@ -34,7 +34,7 @@ export class User extends Document {
   @Prop({
     type: mongoose.Schema.Types.String,
     required: [false],
-    unique: [true, "duy nhất 1 email"],
+    unique: [false, "duy nhất 1 email"],
   })
   email?: string;
   @Prop({

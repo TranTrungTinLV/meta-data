@@ -1,4 +1,4 @@
 export enum EDirUpload {
-  PRODUCT = 'products',
-  CATEGORY = 'categories'
-}
+    PRODUCT = 'products',
+    CATEGORY = 'categories'
+  }

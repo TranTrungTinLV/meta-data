@@ -167,7 +167,7 @@ export class UploadsService {
 
       // ** resize with sharp
       const newPath = path.substring(0, path.lastIndexOf('/') + 1) + newName;
-      
+
       await sharp(path)
         .rotate()
         .resize(width, height, {
@@ -398,7 +398,7 @@ export class UploadsService {
     const { data, req, session } = payload;
     let imgsOfAsset: string[] = payload.imgsOfAsset;
 
-    let [asset] = await this.productModel.create([data], {
+    const [asset] = await this.productModel.create([data], {
       session,
     });
 

@@ -51,6 +51,11 @@ export class FavoriteService {
         if (!favorite) {
             throw new BadRequestException('Sản phẩm không có trong danh sách yêu thích');
         }
+        const result = await this.favoriteModel.deleteOne({ _id: favorite._id });
+        if (result.deletedCount === 0) {
+            throw new BadRequestException('Lỗi khi xóa sản phẩm khỏi danh sách yêu thích');
+        }
+        
         if(favorite.user_id.toString() !== owner._id.toString()){
             throw new BadRequestException('Lỗi khi xóa sản phẩm khỏi danh sách yêu thích');
         }

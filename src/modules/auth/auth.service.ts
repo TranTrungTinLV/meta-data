@@ -14,6 +14,8 @@ import {Queue} from 'bull'
 
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { CacheService } from 'src/common/utils/cache.service';
+import { validateEmail } from 'src/common/utils/checker.helper';
+
 // import { CacheService } from 'src/modules/cache/cache.service';
 // import * as redisStore from 'cache-manager-redis-store';
 @Injectable()
@@ -32,7 +34,7 @@ export class AuthService {
     // const user = await this.usersService.findOneWithPassword(username);
     // const user = await this.usersService.findOneWithEmailorUserName(loginIdentifier)
     let user;
-    const isEmailLogin = this.usersService.validateEmail(loginIdentifier);
+    const isEmailLogin = validateEmail(loginIdentifier);
 
     if(isEmailLogin){
       user = await this.usersService.findOneByEmail(loginIdentifier);
@@ -79,9 +81,7 @@ export class AuthService {
     };
   }
 
-
   
-
 
 async resetPasswordOTP(email: string, otp: string, newPassword: string) {
   const user = await this.usersService.findOneByEmail(email);
@@ -116,15 +116,7 @@ async resetPasswordOTP(email: string, otp: string, newPassword: string) {
 
 }
 
-// async sendOTP(email: string) {
-//   const config = await Math.floor(100000 + Math.random() * 900000).toString();
-//   const otpExpires = new Date(Date.now() + 10 * 60000);
-//   await this.saveOTP(email, otp, otpExpires);
 
-//   return config;
- 
-  
-// }
 
 
 //Thay đổi mật khẩu khi đăng nhập

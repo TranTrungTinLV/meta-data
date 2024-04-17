@@ -1,3 +1,3 @@
 export type SwaggerMethod<T> = {
-  [key in keyof T]: (summary: string) => MethodDecorator;
-};
+    [key in keyof T]: (summary: string) => MethodDecorator;
+  };

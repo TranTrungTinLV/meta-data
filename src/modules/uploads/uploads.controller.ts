@@ -14,11 +14,13 @@ import {
 // ** DI injections
 import { UploadsService } from './services/uploads.service';
 import { UploadCSVFileDto } from './dtos/csv_upload.dto';
-import { ApiSecurity, ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiProperty, ApiSecurity, ApiTags } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { docUpload } from './upload.doc';
 import { multerOptions } from './file_mimietype.filter';
 import { AuthGuard } from '@nestjs/passport';
+import { Roles } from 'src/common/decators/roles.decorator';
+import { Role } from '../users/schema/create-user.schema';
 
 @ApiTags('Upload')
 @Controller('import')
@@ -27,8 +29,10 @@ export class UploadController {
 
   @ApiSecurity('bearerAuth')
   @UseInterceptors(FileInterceptor('file', multerOptions()))
+  @ApiOperation({summary: 'imports excel to data', description: 'required Admin'})
   @Post('imports')
-  @UseGuards(AuthGuard('jwt'))
+  // @UseGuards(AuthGuard('jwt'))
+  @Roles([Role.Admin])
   @docUpload.uploadFile('Upload file')
   async uploadFile(
     @UploadedFile() file: Express.Multer.File,
@@ -40,7 +44,9 @@ export class UploadController {
   }
 
   @Get('imports')
+  @Roles([Role.Admin])
   @ApiSecurity('bearerAuth')
+  @ApiOperation({summary: 'get data from import', description: 'required Admin'})
   @docUpload.getIndexExcel('Upload file')
   async getIndexExcel(@Req() req): Promise<any> {
     return [

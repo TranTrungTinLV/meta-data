@@ -32,15 +32,16 @@ import {
   FileInterceptor,
   FilesInterceptor,
 } from '@nestjs/platform-express';
-import {
-  importExcel2Data,
-  multerExcelOptions,
-} from 'src/common/utils/exceltoJSON';
+
+import { Roles } from 'src/common/decators/roles.decorator';
+// import { Role } from '../users/schema/create-user.schema';
 import { Product } from './schema/create-product.schema';
 import { multerOptions } from 'src/common/utils/uploadImage';
 import { UpdateProductDto } from './dtos/update-product.dto';
 import { RolesGuard } from 'src/common/guard/roles.gaurd';
+import { PaginateResult } from 'mongoose';
 import { FilterProductDto } from './dtos/filter-product.dto';
+import { Role } from '../users/schema/create-user.schema';
 
 @ApiSecurity('bearerAuth')
 @ApiTags('Product')
@@ -49,23 +50,7 @@ import { FilterProductDto } from './dtos/filter-product.dto';
 export class ProductController {
   constructor(private readonly productService: ProductService) {}
 
-  @Public()
-  @Post('upload')
-  @UseInterceptors(FileInterceptor('file', multerExcelOptions))
-  async uploadFile(
-    @UploadedFile() file,
-    @Body('mapping') mapping: string, // 'mapping' là một chuỗi JSON của mảng quy định
-  ) {
-    if (!file) {
-      throw new HttpException('File is empty', HttpStatus.BAD_REQUEST);
-    }
-    const filePath = file.path; // lấy đường dẫn file đã được upload
-    await importExcel2Data(filePath, this.productService, mapping);
-    return 'File has been uploaded and data is being processed.';
-  }
-
-  // @Roles([Role.Admin])
-  @Public()
+  @Roles([Role.Admin])
   @UseInterceptors(FilesInterceptor('images', 5, multerOptions('products'))) //images
   @ApiConsumes('multipart/form-data')
   @ApiOperation({ description: 'Thêm sản phẩm' })
@@ -83,7 +68,7 @@ export class ProductController {
       (file) => `images/products/${file.filename}`,
     );
 
-    const username = null;
+    const username = request.user?.username;
     console.log(username);
 
     return await this.productService.create(createProductDto, username);
@@ -91,7 +76,6 @@ export class ProductController {
 
   //sửa sản phẩm
   @Patch(':productId')
-  // @Roles([Role.Admin,Role.Staff])
   @UseInterceptors(
     FileFieldsInterceptor(
       [{ name: 'newImages', maxCount: 5 }],
@@ -99,10 +83,10 @@ export class ProductController {
     ),
   )
   @ApiConsumes('multipart/form-data')
-  @Public()
+  @Roles([Role.Admin])
   @ApiOperation({
     summary: 'Cập nhật sản phẩm',
-    description: 'Yêu cầu role: Staff hoặc Admin',
+    description: 'Yêu cầu role: Admin',
   })
   async updateProduct(
     @Param('productId') productId: string,
@@ -118,11 +102,10 @@ export class ProductController {
 
   //Xóa sản phẩm
   @Delete(':productId')
-  @Public()
   @HttpCode(HttpStatus.OK)
   @ApiResponse({ status: HttpStatus.OK, description: 'Xóa thành công' })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Xóa thất bại' })
-  // @Roles([Role.Admin,Role.Staff])
+  @Roles([Role.Admin])
   @ApiOperation({
     summary: 'Xoá Sản phẩm',
     description: 'Yêu cầu role: Staff hoặc Admin',
@@ -133,7 +116,7 @@ export class ProductController {
 
   //Xóa nhiều sản phẩm
   @Delete()
-  @Public()
+  @Roles([Role.Admin])
   @HttpCode(HttpStatus.OK)
   @ApiResponse({ status: HttpStatus.OK, description: 'Xóa thành công' })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Xóa thất bại' })
@@ -141,12 +124,11 @@ export class ProductController {
     summary: 'Xoá nhiều sản phẩm',
     description: 'Yêu cầu role: Admin',
   })
-  // @Roles([Role.Admin,Role.Staff])
   async deleteManyProducts(@Body() ids: string[]): Promise<any> {
     return this.productService.deleteMany(ids);
   }
 
-  //lấy sản phẩm
+  //lấy sản phẩm theo id
   @Get(':id')
   @Public()
   async getproductById(@Param('id') id: string): Promise<Product> {

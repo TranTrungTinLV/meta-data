@@ -9,10 +9,12 @@ import { UploadController } from './uploads.controller';
 import { User, UserSchema } from '../users/schema/create-user.schema';
 import { Category, CategorySchema } from '../category/schema/category.schema';
 import { Product, ProductSchema } from '../product/schema/create-product.schema';
+import { UsersModule } from '../users/users.module';
 
 
 @Module({
   imports: [
+    UsersModule,
     MongooseModule.forFeature([
       { name: User.name, schema: UserSchema },
       { name: Category.name, schema: CategorySchema },

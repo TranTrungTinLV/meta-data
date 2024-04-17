@@ -2,8 +2,8 @@ import * as crypto from 'crypto';
 
 /**
  * Function to generate a random numeric code of a given length
- * @param length 
- * @returns 
+ * @param length
+ * @returns
  */
 export function genCode(length: number): string {
   // Repeat '0' for the given length, split it into an array,
@@ -17,12 +17,13 @@ export function genCode(length: number): string {
 
 /**
  * Function to generate a random password of a given length
- * 
- * @param length 
- * @returns 
+ *
+ * @param length
+ * @returns
  */
 export function genPasswordRandom(length: number): string {
-  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()-_=+';
+  const characters =
+    'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()-_=+';
   let password = '';
   for (let i = 0; i < length; i++) {
     const randomIndex = Math.floor(Math.random() * characters.length);
@@ -33,26 +34,27 @@ export function genPasswordRandom(length: number): string {
 
 /**
  * Function to generate a random flag of a given length
- * 
- * @param length 
- * @returns 
+ *
+ * @param length
+ * @returns
  */
 export function genFlagRandom(length: number): string {
-  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  const characters =
+    'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
   let flag = '';
   for (let i = 0; i < length; i++) {
     const randomIndex = Math.floor(Math.random() * characters.length);
     flag += characters.charAt(randomIndex);
   }
-  
+
   return flag;
 }
 
 /**
  * Function to generate a QR code from a data hash
- * 
- * @param dataHash 
- * @returns 
+ *
+ * @param dataHash
+ * @returns
  */
 export function genQRCode(dataHash: string): string {
   return crypto
@@ -63,8 +65,8 @@ export function genQRCode(dataHash: string): string {
 
 /**
  * Function to generate a random positive integer
- * 
- * @returns 
+ *
+ * @returns
  */
 export function randomPositiveInteger(): number {
   const randomNumber = Math.random();
@@ -74,10 +76,10 @@ export function randomPositiveInteger(): number {
 
 /**
  * Function to generate a nested population object for a given level and path
- * 
- * @param level 
- * @param path 
- * @returns 
+ *
+ * @param level
+ * @param path
+ * @returns
  */
 export function generateNestedPopulation(level: number, path: string): any {
   // If the level is 0, return the path
@@ -89,7 +91,7 @@ export function generateNestedPopulation(level: number, path: string): any {
     // with the level decreased by 1
     return {
       path: path,
-      populate: generateNestedPopulation(level - 1, path)
+      populate: generateNestedPopulation(level - 1, path),
     };
   }
 }

@@ -9,12 +9,12 @@ export class MailerService {
   constructor(
     private configService: ConfigService,
     ) {
-      sgMail.setApiKey(this.configService.get<string>('MAILER_KEY'))
+      sgMail.setApiKey('SG.Wf8_uXrkQ1SKhUEy0d5UOQ.h7c0DJNWVVpkkSRv134_DYOP534Gp30bJ16Ts4oGGsIs')
     }
   async sendEmail(to: string, subject: string, message: string): Promise<void> {
     const msg = {
       to: to,
-      from: this.configService.get<string>('MAILER_ADDR'),
+      from: 'noreply@sgod.vn',
       subject: subject,
       html: message
     }

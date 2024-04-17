@@ -13,7 +13,8 @@ import { UpdateUser } from '../users/dto/update-user.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { multerOptions } from 'src/common/utils/uploadImage';
 import { ChangePasswordDto } from './dto/change-password.dto';
-import { CacheService } from 'src/common/utils/cache.service';
+import { CreateRegistorDto } from './dto/create-users.dto';
+
 
 @ApiTags('Auth')
 @UseGuards(RolesGuard)
@@ -29,13 +30,52 @@ export class AuthController {
 
     @Public()
     @Post('login')
-    @ApiOperation({description: 'Đăng nhập'})
+    @ApiOperation({description: 'Login',summary: 'Login'})
     @HttpCode(HttpStatus.OK)
     @ApiOperation({ summary: 'User login' })
     @ApiResponse({ status: HttpStatus.OK, description: 'Login successful' })
     @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Invalid credentials' })
   async login(@Body() loginDto: LoginDto) {
     return await this.authService.login(loginDto.loginIdentifier, loginDto.password);
+  }
+
+
+  @Public()
+  @Post('/register')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        username: {type: 'string'},
+        password: {type: 'string'},
+        email: {type: 'string'},
+        sex: {type: 'string'},
+        birthday: {type: 'string'},
+        phone: {type: 'string'},
+        fullname: {type: 'string'},
+        avatar: {
+          type: 'string',
+          format: 'binary'
+        }
+      },
+      required: ['username', 'password'],
+
+    }
+  })
+  @ApiOperation({description: 'Signup',summary: 'Signup'})
+  @ApiConsumes('multipart/form-data')
+  @UseInterceptors(FileInterceptor('avatar',multerOptions('avatar')))
+
+    @HttpCode(HttpStatus.OK)
+    @ApiOperation({ summary: 'User Signup' })
+    @ApiResponse({ status: HttpStatus.OK, description: 'Signup successful' })
+    @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Invalid credentials' })
+  async registration(@Body() registerDto: CreateRegistorDto,@UploadedFile() file: Express.Multer.File) {
+    if(file){
+      registerDto.avatar = `images/avatar/${file.filename}`
+    }
+    console.log(`Registration of user '${registerDto.username}' in progress.`);
+    return await this.userService.registerUser(registerDto);
   }
 
 
@@ -48,6 +88,8 @@ export class AuthController {
   async logout(@Req() request: any) {
     return { message: 'Logout successful' };
   }
+
+  
 
 
 
@@ -83,9 +125,10 @@ export class AuthController {
   })
   async resetPasswordOTP(@Body('email') email: string,@Body('newPassword') newPassword: string,@Body('otp') otp: string) {
     return await this.authService.resetPasswordOTP(email,otp,newPassword);
-    // return {  };
 
   }
+
+  
 
 
   

@@ -31,11 +31,11 @@ export class ProductService {
         return createdProduct.save();
       }
 
-    async create(createProductDto: CreateProductDto,username: null): Promise<Product> {
-        // const owner = await this.userService.findOne(username);
-        // if(!owner){
-        //     throw new Error('Không tìm thấy người dùng')
-        // }
+    async create(createProductDto: CreateProductDto,username: string): Promise<Product> {
+        const owner = await this.userService.findOne(username);
+        if(!owner){
+            throw new Error('Không tìm thấy người dùng')
+        }
         const category = await this.categoryModel.findById(createProductDto.category_id)
         console.log(category)
         if (!category) {
@@ -43,7 +43,7 @@ export class ProductService {
         }
         const newProduct = this.productModel.create({
             ...createProductDto,
-            // owner: owner._id,
+            owner: owner._id,
             category_id: category._id
         })
 

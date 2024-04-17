@@ -1,10 +1,8 @@
 import { Body, Controller, Delete, Get, Param, Post, Req } from '@nestjs/common';
 import { FavoriteService } from './favorite.service';
 import { ApiBearerAuth, ApiBody, ApiConsumes, ApiSecurity, ApiTags } from '@nestjs/swagger';
-import { Public } from 'src/common/decorators/public.decorations';
 import { Roles } from 'src/common/decators/roles.decorator';
 import { Role } from '../users/schema/create-user.schema';
-import { FavoriteDto } from './dtos/favourite.dto';
 
 @ApiTags('Favorite')
 @Controller('favorite')
