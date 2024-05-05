@@ -213,7 +213,6 @@ export class ProductController {
   @Header('Content-Disposition', 'attachment; filename=test.pdf')
   // @Roles([Role.Admin])
   @Public()
-  // @Render('index')
   async getPdf(@Res() res: Response) {
     const data = {
       companyDirector: 'Mr. Smith',
@@ -231,10 +230,12 @@ export class ProductController {
     };
     const filename = 'output.pdf';
     const rootPath = path.resolve(__dirname, '../../..'); // Adjust this path to correctly point to your project root
+    console.log(rootPath);
     const pdfPath = path.join(rootPath, 'storage', 'pdf', filename);
-    console.log(pdfPath);
+    console.log('getPDF pdfPath', pdfPath);
 
     try {
+      console.log('Data being passed to PDF:',data)
       await this.pdfService.generatePdf(data, pdfPath);
       res.sendFile(pdfPath);
     } catch (error) {
@@ -242,70 +243,4 @@ export class ProductController {
       res.status(500).send(`Failed to generate or send PDF: ${error.message}`);
     }
   }
-
-  @Get('pdf/:66334cd7ce36711ea7bf4e93')
-  @Public()
-  
-  // @Header('Content-Type', 'image/pdf')
-  @Header('Content-Disposition', 'attachment; filename=test.pdf')
-  async Getpdf() {
-    const filename = 'test.pdf';
-    const rootPath = path.resolve(__dirname, '../../..');
-
-    const filePath = path.join(rootPath, 'views');
-    // const templatePath = path.join(filePath, 'html.hbs');
-    if (fs.existsSync(filePath)) {
-      console.log('File exists:', filePath);
-  } else {
-      console.log('File does not exist:', filePath);
-  }
-    // console.log(templatePath);
-
-    return await this.productService.generatePDFToFile('../../../views','test');
-  }
-
-  @Get('abc/:id')
-  @Public()
-  @Render('index')
-  async getHello(@Res() res: Response, @Param('id') id: string): Promise<any> {
-    return res.render(await this.productService.getViewName());
-  }
-
-  @Get('data/:66334cd7ce36711ea7bf4e93')
-  @Public()
-  async GetData(@Res() res: Response): Promise<any> {
-    const data = await this.productService.GetItemList();
-    console.log('data', data);
-    return res.render('pdf', { total: data.name, items: data.note });
-  }
-
-  // @Get('pdf/:id')
-  // @Public()
-  // public async getProductById(
-  //   @Param('id') id: string,
-  //   @Res() response: Response,
-  // ) {
-  //   if (!mongoose.isValidObjectId(id)) {
-  //     return response.status(HttpStatus.BAD_REQUEST).json({
-  //       message: 'Invalid ID format',
-  //       status: HttpStatus.BAD_REQUEST,
-  //     });
-  //   }
-
-  //   try {
-  //     const product = await this.productService.findByIdProduct(id);
-  //     if (!product) {
-  //       return response.status(HttpStatus.NOT_FOUND).json({
-  //         message: 'Product not found',
-  //         status: HttpStatus.NOT_FOUND,
-  //       });
-  //     }
-  //     return response.json(product);
-  //   } catch (error) {
-  //     return response.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-  //       message: 'Error retrieving product',
-  //       status: HttpStatus.INTERNAL_SERVER_ERROR,
-  //     });
-  //   }
-  // }
 }
