@@ -1,0 +1,20 @@
+mongo-url = "mongodb://mongodb-primary-metadata:27030"
+elasticsearch-urls = ["http://elastic:gj0vYO7g9Q5FBDICNaXn@elasticsearch:9200/"]
+change-stream-namespaces = ['metadata.products']
+elasticsearch-user = "elastic"
+elasticsearch-password = "telPUM1EBkM8ARN7Vuv4"
+elasticsearch-max-conns = 4 
+dropped-collections = true
+dropped-databases = true
+replay = false
+resume = true
+resume-write-unsafe = false
+resume-name = "default"
+resume-strategy = 1
+namespace-exclude-regex = '^metadata\.products$'
+index-files = false
+file-highlighting = true
+verbose = false
+cluster-name = 'metadata'
+exit-after-direct-reads = false
+

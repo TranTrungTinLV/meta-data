@@ -1,0 +1,142 @@
+version: '3.7'
+
+services:
+  # app:
+  #   container_name: metadata_web
+  #   build: 
+  #     context: .
+  #     dockerfile: Dockerfile
+  #   ports:
+  #     - '3002:3002'
+  #   depends_on:
+  #     - mongo
+  #   volumes:
+  #     - ./src:/app/src
+  #   networks:
+  #     - medatata-network
+  redis-metadata:
+    container_name: redis-metadata
+    image: redislabs/rejson:latest
+    ports:
+      - '6377:6379'
+    volumes:
+      - ./redis/redis-metadata:/data/redis
+    env_file:
+      - .env
+    networks:
+      - medatata-network
+  mongodb-primary-metadata:
+    container_name: mongodb-primary-metadata
+    image: mongo
+    restart: always
+    command: ["--replSet", "Sgod_Metadata", "--bind_ip_all", "--port", "27030"]
+    ports:
+      - '27030:27030'
+    volumes:
+      - ../../data_metadata/mongodb-primary-asset:/data/db
+    env_file:
+      - .env
+    healthcheck:
+      test: test $$(echo "rs.initiate({_id:'Sgod_Metadata',members:[{_id:0,host:\"mongodb-primary-metadata:27030\"},{_id:1,host:\"mongodb-secondary-metadata:27031\"},{_id:2,host:\"mongodb-arbiter-metadata:27032\"}]}).ok || rs.status().ok" | mongosh --port 27030 --quiet) -eq 1
+      interval: 10s
+      start_period: 30s
+    networks:
+      - medatata-network
+  mongodb-secondary-metadata:
+    container_name: mongodb-secondary-metadata
+    image: mongo
+    depends_on:
+      - mongodb-primary-metadata
+    restart: always
+    command: ["--replSet", "Sgod_Metadata", "--bind_ip_all", "--port", "27031"]
+    volumes:
+      - ../../data_metadata/mongodb-secondary-metadata:/data/db
+    ports:
+      - 27031:27031
+    env_file:
+      - .env
+    networks:
+      - medatata-network
+  mongodb-arbiter-metadata:
+    container_name: mongodb-arbiter-metadata  
+    image: mongo
+    restart: always
+    command: ["--replSet", "Sgod_Metadata", "--bind_ip_all", "--port", "27032"]
+    volumes:
+      - ../../data_metadata/mongodb-arbiter-metadata:/data/db
+    ports:
+      - 27032:27032
+    depends_on:
+      - mongodb-primary-metadata
+    env_file:
+      - .env
+    networks:
+      - medatata-network
+  elasticsearch:
+    container_name: elasticsearch-products
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.13.2
+    environment:
+      - discovery.type=single-node
+      - xpack.ml.enabled=false
+      - xpack.security.enabled=false
+      - bootstrap.memory_lock=true
+      - cluster.name=docker-cluster
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    volumes:
+      - elasticsearch-volume:/usr/share/elasticsearch/data
+    networks:
+      - medatata-network
+  mongo:
+    image: mongo:latest
+    restart: always
+    container_name: mongo
+    
+    ports:
+      - "80:80"
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_DATABASE: nest
+    volumes:
+      - data-volume:/data/db
+    networks:
+      - medatata-network
+  monstache:
+    image: rwynn/monstache:latest 
+    container_name: monstache
+    working_dir: /app
+    volumes:
+      - ./monstache.config.toml:/app/monstache.config.toml 
+    command: ["-f", "/app/monstache.config.toml"] # Sử dụng đúng đường dẫn cho file cấu hình
+    depends_on:
+      - mongodb-primary-metadata
+      - elasticsearch
+    networks:
+      - medatata-network
+  kibana:
+    container_name: kb-container
+    image: docker.elastic.co/kibana/kibana:8.13.2
+    environment:
+      - ELASTICSEARCH_HOSTS="http://elasticsearch-products:9200"
+    restart: unless-stopped
+    depends_on:
+      - elasticsearch
+    ports:
+      - "5601:5601"
+    networks:
+      - medatata-network
+  
+volumes:
+  data-volume:
+    driver: local
+  elasticsearch-volume:
+    driver: local
+networks:
+  medatata-network:
+    driver: bridge
