@@ -1,20 +1,24 @@
 import { Injectable } from '@nestjs/common';
 import * as fs from 'fs';
-import * as Handlebars from 'handlebars';
+import Handlebars from 'handlebars';
 import * as path from 'path';
 import * as PDFDocument from 'pdfkit';
 import * as puppeteer from 'puppeteer';
+import { allowInsecurePrototypeAccess } from '@handlebars/allow-prototype-access';
+
 @Injectable()
 export class PdfService {
-  constructor() { }
+  constructor() {}
 
   async generatePdf(data: any, outputPath: string): Promise<void> {
-    const doc = new PDFDocument();
     const templatePath = path.resolve(__dirname, '../../../views', 'index.hbs');
     const templateHtml = fs.readFileSync(templatePath, 'utf8');
-    const template = Handlebars.compile(templateHtml);
+    const handlebarsEnv = Handlebars.create();
+    handlebarsEnv.compile = allowInsecurePrototypeAccess(Handlebars).compile;
+    const template = handlebarsEnv.compile(templateHtml);
+
     // const page = await browser.newPage();
-    const html = template(data);
+    const html = template({ data: data.docs });
     const outputDir = path.dirname(outputPath);
 
     if (!fs.existsSync(outputDir)) {
@@ -23,7 +27,7 @@ export class PdfService {
     const browser = await puppeteer.launch();
     const page = await browser.newPage();
     await page.setContent(html);
-    await page.pdf({ path: outputPath }); 
+    await page.pdf({ path: outputPath });
     await browser.close();
 
     // if (!fs.existsSync(outputDir)) {

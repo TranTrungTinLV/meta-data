@@ -8,6 +8,7 @@ import * as path from 'path';
 import { rateLimit } from 'express-rate-limit';
 import { existsSync, mkdirSync } from 'fs';
 import * as hbs from 'express-handlebars';
+import { allowInsecurePrototypeAccess } from '@handlebars/allow-prototype-access';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -62,6 +63,15 @@ async function bootstrap() {
   const viewsPath = path.join(__dirname, '..', 'views');
   console.log('viewsPath ', viewsPath);
   app.setBaseViewsDir(viewsPath);
+
+  app.engine(
+    'hbs',
+    hbs({
+      defaultLayout: 'index',
+      handlebars: allowInsecurePrototypeAccess,
+    }),
+  );
+  app.set('view engine', 'handlebars');
   // app.engine(
   //   'hbs',
   //   hbs({

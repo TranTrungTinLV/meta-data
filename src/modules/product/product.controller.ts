@@ -213,21 +213,8 @@ export class ProductController {
   @Header('Content-Disposition', 'attachment; filename=test.pdf')
   // @Roles([Role.Admin])
   @Public()
-  async getPdf(@Res() res: Response) {
-    const data = {
-      companyDirector: 'Mr. Smith',
-      reasonForUse: 'Maintenance',
-      items: [
-        {
-          name: 'Cable',
-          usageType: 'Type A',
-          requestType: 'New',
-          quantity: 3,
-          note: 'Urgent',
-        },
-      ],
-      generalNote: 'Handle with care',
-    };
+  async getPdf(@Res() res: Response, @Query() filters: FilterProductDto) {
+    const data = await this.productService.findAllProducts(filters);
     const filename = 'output.pdf';
     const rootPath = path.resolve(__dirname, '../../..'); // Adjust this path to correctly point to your project root
     console.log(rootPath);
@@ -235,7 +222,7 @@ export class ProductController {
     console.log('getPDF pdfPath', pdfPath);
 
     try {
-      console.log('Data being passed to PDF:',data)
+      console.log('Data being passed to PDF:', JSON.stringify(data, null, 2));
       await this.pdfService.generatePdf(data, pdfPath);
       res.sendFile(pdfPath);
     } catch (error) {

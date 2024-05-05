@@ -352,6 +352,9 @@ export class ProductService {
     return path;
   }
 
+
+  
+
   //pdf
   // async getViewName(): Promise<string> {
   //   return 'index';
