@@ -70,7 +70,8 @@
         <h1>BẢNG BÁO CÁO NGUYÊN LIỆU, VẬT TƯ NHẬP-XUẤT-TỒN TRONG KỲ BÁO CÁO</h1>
         <h2>(Dùng cho doanh nghiệp sản xuất kinh doanh trong Khu phi thuế quan)</h2>
         <div class="info">
-            <p>Tên doanh nghiệp:...................................................................Mã số doanh
+            {{!-- {{#each data}} --}}
+            <p>Tên doanh nghiệp:....................{{this.username}}...........................Mã số doanh
                 nghiệp:...................................................................<span></span></p>
             <p>Mã số doanh
                 nghiệp:.......................................................................................................................................................................<span></span>
@@ -84,6 +85,8 @@
             <p>Đơn vị Hải quan làm thủ
                 tục:..............................................................................................................................................<span></span>
             </p>
+            {{!-- {{/each}} --}}
+
         </div>
 
         <table>
@@ -102,8 +105,6 @@
                 </tr>
             </thead>
             <tbody>
-                <!-- Table rows will be dynamically added here -->
-                {{#each data}}
                 <tr>
                     <td>1</td>
                     <td>2</td>
@@ -116,11 +117,13 @@
                     <td>9</td>
                     <td>10</td>
                 </tr>
+
+                {{#each data}}
                 <tr>
-                    <td>1</td>
+                    <td></td>
                     <td>{{this.code}}</td>
                     <td>{{this.name}}</td>
-                    <td>{{this.category_id}}</td>
+                    <td>{{this.category_id.name}}</td>
                     <td>{{this.unit}}</td>
                     <td>{{this.quantity}}</td>
                     <td>{{this.detail}}</td>
@@ -128,10 +131,10 @@
                     <td></td>
                     <td>{{this.note}}</td>
                 </tr>
+                {{/each}}
             </tbody>
         </table>
-        {{/each}}
-        </table>
+        
 
 
         <div class="footer">

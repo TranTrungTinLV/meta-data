@@ -5,12 +5,15 @@ import * as path from 'path';
 import * as PDFDocument from 'pdfkit';
 import * as puppeteer from 'puppeteer';
 import { allowInsecurePrototypeAccess } from '@handlebars/allow-prototype-access';
+import { UsersService } from 'src/modules/users/users.service';
 
 @Injectable()
 export class PdfService {
-  constructor() {}
+  constructor(private readonly usersService: UsersService) {}
 
-  async generatePdf(data: any, outputPath: string): Promise<void> {
+  async generatePdf(data: any, outputPath: string, username): Promise<void> {
+    const owner = await this.usersService.findOne(username);
+    console.log(owner)
     const templatePath = path.resolve(__dirname, '../../../views', 'index.hbs');
     const templateHtml = fs.readFileSync(templatePath, 'utf8');
     const handlebarsEnv = Handlebars.create();
