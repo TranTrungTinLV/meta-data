@@ -100,7 +100,7 @@
                     <th>Tồn kho</th>
                     <th>Chi tiết</th>
                     <th>Tiêu chuẩn</th>
-                    <th>Kết thúc quảng cáo</th>
+                    <th>Hình ảnh sản phẩm</th>
                     <th>Ghi chú</th>
                 </tr>
             </thead>
@@ -128,13 +128,17 @@
                     <td>{{this.quantity}}</td>
                     <td>{{this.detail}}</td>
                     <td>{{this.standard}}</td>
-                    <td></td>
+                    <td> <img
+                            src= `http://localhost:3002/images/products/1714979103314-LGnsK-image1.png`
+                            
+                            alt="Image"></td>
+                    </td>
                     <td>{{this.note}}</td>
                 </tr>
                 {{/each}}
             </tbody>
         </table>
-        
+
 
 
         <div class="footer">

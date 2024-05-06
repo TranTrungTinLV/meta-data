@@ -67,36 +67,36 @@ export class ProductService {
       category_id: category._id,
     });
 
-    // const index = 'newproduct';
-    // const body = {
-    //   settings: { number_of_shards: 1, number_of_replicas: 1 },
-    //   mappings: {
-    //     properties: {
-    //       name: newProduct.name,
-    //       code: newProduct.code,
-    //       detail: newProduct.detail,
-    //       images: newProduct.images,
-    //     },
-    //   },
-    // };
-    // const existsElastic = index
-    //   ? await this.metadataService.indexExists(index)
-    //   : await this.metadataService.createIndex(index, body);
-    // console.log('existsElastic', existsElastic);
-    // if (!existsElastic) {
-    //   console.log('existsElastic', existsElastic);
-    //   await this.metadataService.createIndex(index, body);
-    // } else {
-    //   console.log('existsElastic tồn tại');
-    // }
-    // //Elastic
-    // this.metadataService.index(index, {
-    //   id: String(newProduct._id),
-    //   name: newProduct.name,
-    //   code: newProduct.code,
-    //   detail: newProduct.detail,
-    //   image: newProduct.images,
-    // });
+    const index = 'newproduct';
+    const body = {
+      settings: { number_of_shards: 1, number_of_replicas: 1 },
+      mappings: {
+        properties: {
+          name: newProduct.name,
+          code: newProduct.code,
+          detail: newProduct.detail,
+          images: newProduct.images,
+        },
+      },
+    };
+    const existsElastic = index
+      ? await this.metadataService.indexExists(index)
+      : await this.metadataService.createIndex(index, body);
+    console.log('existsElastic', existsElastic);
+    if (!existsElastic) {
+      console.log('existsElastic', existsElastic);
+      await this.metadataService.createIndex(index, body);
+    } else {
+      console.log('existsElastic tồn tại');
+    }
+    //Elastic
+    this.metadataService.index(index, {
+      id: String(newProduct._id),
+      name: newProduct.name,
+      code: newProduct.code,
+      detail: newProduct.detail,
+      image: newProduct.images,
+    });
 
     await this.categoryModel.findByIdAndUpdate(category._id, {
       $push: { products: (await newProduct)._id },

@@ -10,7 +10,7 @@ const diskStorageFile = diskStorage({
   destination: async (req: any, file: any, cb: any) => {
     const rootPathUploadDir = path.resolve(
       __dirname,
-      `../../../${process.env.DIR_UPLOADS}/${process.env.SUB_DIR_UPLOADS}/`,
+      `../../../${process.env.DIR_UPLOADS}/${process.env.SUB_DIR_UPLOADS}/products`,
     );
 
     if (!existsSync(`${rootPathUploadDir}`)) {

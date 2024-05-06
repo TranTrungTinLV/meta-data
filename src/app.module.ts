@@ -46,7 +46,7 @@ import { LoggerModule } from 'nestjs-pino';
 
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', '/storage/images'),
-      serveRoot: '/images/',
+      serveRoot: '/images/', //img
     }),
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', '/storage/pdf'),
