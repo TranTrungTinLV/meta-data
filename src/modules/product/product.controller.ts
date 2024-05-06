@@ -47,6 +47,7 @@ import { PdfService } from 'src/common/pdf-request-form/pdf.request';
 import * as path from 'path';
 import * as fs from 'fs';
 import mongoose, { Mongoose } from 'mongoose';
+import { UsersService } from '../users/users.service';
 
 @ApiSecurity('bearerAuth')
 @ApiTags('Product')
@@ -56,6 +57,7 @@ export class ProductController {
   constructor(
     private readonly productService: ProductService,
     private readonly pdfService: PdfService,
+    private readonly usersService: UsersService,
   ) {}
 
   @Roles([Role.Admin])
@@ -213,8 +215,13 @@ export class ProductController {
   @Header('Content-Disposition', 'attachment; filename=test.pdf')
   // @Roles([Role.Admin])
   @Public()
-  async getPdf(@Res() res: Response, @Query() filters: FilterProductDto) {
+  async getPdf(
+    @Res() res: Response,
+    @Query() filters: FilterProductDto,
+    @Req() request: any,
+  ) {
     const data = await this.productService.findAllProducts(filters);
+    
     const filename = 'output.pdf';
     const rootPath = path.resolve(__dirname, '../../..'); // Adjust this path to correctly point to your project root
     console.log(rootPath);
