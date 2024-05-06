@@ -122,7 +122,7 @@ async function bootstrap() {
 
   const config = new DocumentBuilder()
     .setTitle('METADATA')
-    .setDescription('List API tesing for Sgarden foods by Levi')
+    .setDescription('List API tesing for Sgarden metadata by Levi')
     .setVersion('1.0')
     .addBearerAuth(
       {
