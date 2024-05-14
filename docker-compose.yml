@@ -1,0 +1,217 @@
+version: '3.7'
+
+services:
+
+  redis-metadata:
+    container_name: redis-metadata
+    image: redislabs/rejson:latest
+    ports:
+      - '6377:6379'
+    volumes:
+      - ./redis/redis-metadata:/data/redis
+    env_file:
+      - .env
+    networks:
+      - medatata-network
+  mongodb-primary-metadata:
+    container_name: mongodb-primary-metadata
+    image: mongo
+    restart: always
+    command: ["--replSet", "Sgod_Metadata", "--bind_ip_all", "--port", "27030"]
+    ports:
+      - '27030:27030'
+    volumes:
+      - ../../data_metadata/mongodb-primary-asset:/data/db
+    env_file:
+      - .env
+    healthcheck:
+      test: test $$(echo "rs.initiate({_id:'Sgod_Metadata',members:[{_id:0,host:\"mongodb-primary-metadata:27030\"},{_id:1,host:\"mongodb-secondary-metadata:27031\"},{_id:2,host:\"mongodb-arbiter-metadata:27032\"}]}).ok || rs.status().ok" | mongosh --port 27030 --quiet) -eq 1
+      interval: 10s
+      start_period: 30s
+    networks:
+      - medatata-network
+  mongodb-secondary-metadata:
+    container_name: mongodb-secondary-metadata
+    image: mongo
+    depends_on:
+      - mongodb-primary-metadata
+    restart: always
+    command: ["--replSet", "Sgod_Metadata", "--bind_ip_all", "--port", "27031"]
+    volumes:
+      - ../../data_metadata/mongodb-secondary-metadata:/data/db
+    ports:
+      - 27031:27031
+    env_file:
+      - .env
+    networks:
+      - medatata-network
+  mongodb-arbiter-metadata:
+    container_name: mongodb-arbiter-metadata  
+    image: mongo
+    restart: always
+    command: ["--replSet", "Sgod_Metadata", "--bind_ip_all", "--port", "27032"]
+    volumes:
+      - ../../data_metadata/mongodb-arbiter-metadata:/data/db
+    ports:
+      - 27032:27032
+    depends_on:
+      - mongodb-primary-metadata
+    env_file:
+      - .env
+    networks:
+      - medatata-network
+
+  # es01:
+  #   image: docker.elastic.co/elasticsearch/elasticsearch:$ES_VERSION
+  #   container_name: es01
+  #   environment:
+  #     - node.name=es01
+  #     - cluster.name=es-docker-cluster
+  #     - discovery.seed_hosts=es02,es03
+  #     - cluster.initial_master_nodes=es01,es02,es03
+  #     - bootstrap.memory_lock=true
+  #     - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+  #     - xpack.license.self_generated.type=basic
+  #     - xpack.security.enabled=true
+  #     - xpack.security.http.ssl.enabled=true
+  #     - xpack.security.http.ssl.key=$CERTS_DIR/es01/es01.key
+  #     - xpack.security.http.ssl.certificate_authorities=$CERTS_DIR/ca/ca.crt
+  #     - xpack.security.http.ssl.certificate=$CERTS_DIR/es01/es01.crt
+  #     - xpack.security.transport.ssl.enabled=true
+  #     - xpack.security.transport.ssl.verification_mode=certificate
+  #     - xpack.security.transport.ssl.certificate_authorities=$CERTS_DIR/ca/ca.crt
+  #     - xpack.security.transport.ssl.certificate=$CERTS_DIR/es01/es01.crt
+  #     - xpack.security.transport.ssl.key=$CERTS_DIR/es01/es01.key
+  #   ulimits:
+  #     memlock:
+  #       soft: -1
+  #       hard: -1
+  #   volumes:
+  #     - data01:/usr/share/elasticsearch/data
+  #     - certs:$CERTS_DIR
+  #   ports:
+  #     - 9200:9200
+
+  # es02:
+  #   image: docker.elastic.co/elasticsearch/elasticsearch:$ES_VERSION
+  #   container_name: es02
+  #   environment:
+  #     - node.name=es02
+  #     - cluster.name=es-docker-cluster
+  #     - discovery.seed_hosts=es01,es03
+  #     - cluster.initial_master_nodes=es01,es02,es03
+  #     - bootstrap.memory_lock=true
+  #     - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+  #     - xpack.license.self_generated.type=basic
+  #     - xpack.security.enabled=true
+  #     - xpack.security.http.ssl.enabled=true
+  #     - xpack.security.http.ssl.key=$CERTS_DIR/es02/es02.key
+  #     - xpack.security.http.ssl.certificate_authorities=$CERTS_DIR/ca/ca.crt
+  #     - xpack.security.http.ssl.certificate=$CERTS_DIR/es02/es02.crt
+  #     - xpack.security.transport.ssl.enabled=true
+  #     - xpack.security.transport.ssl.verification_mode=certificate
+  #     - xpack.security.transport.ssl.certificate_authorities=$CERTS_DIR/ca/ca.crt
+  #     - xpack.security.transport.ssl.certificate=$CERTS_DIR/es02/es02.crt
+  #     - xpack.security.transport.ssl.key=$CERTS_DIR/es02/es02.key
+  #   ulimits:
+  #     memlock:
+  #       soft: -1
+  #       hard: -1
+  #   volumes:
+  #     - data02:/usr/share/elasticsearch/data
+  #     - certs:$CERTS_DIR
+
+  # es03:
+  #   image: docker.elastic.co/elasticsearch/elasticsearch:$ES_VERSION
+  #   container_name: es03
+  #   environment:
+  #     - node.name=es03
+  #     - cluster.name=es-docker-cluster
+  #     - discovery.seed_hosts=es01,es02
+  #     - cluster.initial_master_nodes=es01,es02,es03
+  #     - bootstrap.memory_lock=true
+  #     - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+  #     - xpack.license.self_generated.type=basic
+  #     - xpack.security.enabled=true
+  #     - xpack.security.http.ssl.enabled=true
+  #     - xpack.security.http.ssl.key=$CERTS_DIR/es03/es03.key
+  #     - xpack.security.http.ssl.certificate_authorities=$CERTS_DIR/ca/ca.crt
+  #     - xpack.security.http.ssl.certificate=$CERTS_DIR/es03/es03.crt
+  #     - xpack.security.transport.ssl.enabled=true
+  #     - xpack.security.transport.ssl.verification_mode=certificate
+  #     - xpack.security.transport.ssl.certificate_authorities=$CERTS_DIR/ca/ca.crt
+  #     - xpack.security.transport.ssl.certificate=$CERTS_DIR/es03/es03.crt
+  #     - xpack.security.transport.ssl.key=$CERTS_DIR/es03/es03.key
+  #   ulimits:
+  #     memlock:
+  #       soft: -1
+  #       hard: -1
+  #   volumes:
+  #     - data03:/usr/share/elasticsearch/data
+  #     - certs:$CERTS_DIR
+
+
+  # mongo:
+  #   image: mongo:latest
+  #   restart: always
+  #   container_name: mongo
+    
+  #   ports:
+  #     - "80:80"
+  #     - "27017:27017"
+  #   environment:
+  #     MONGO_INITDB_DATABASE: nest
+  #   volumes:
+  #     - data-volume:/data/db
+  #   networks:
+  #     - medatata-network
+  # monstache:
+  #   image: rwynn/monstache:latest 
+  #   container_name: oc_monstache
+  #   working_dir: /app/monstache
+  #   volumes:
+  #     - ./monstache.config.toml:/app/monstache.config.toml 
+  #   ports:
+  #     - "8080:8080"
+  #   command: ["-f", "/app/monstache.config.toml"] # Sử dụng đúng đường dẫn cho file cấu hình
+  #   restart: unless-stopped
+  #   environment:
+  #     - MONSTACHE_LOG_DIR=logs
+  #     - MONSTACHE_MONGO_URL=${DB_URI}
+  #     - MONSTACHE_ES_URLS=${ELASTIC_URL}
+  #     - MONSTACHE_ES_USER=${ELASTIC_USERNAME}
+  #     - MONSTACHE_ES_PASS=${ELASTIC_PASSWORD}
+  #   depends_on:
+  #     - mongodb-primary-metadata
+  #     - elasticsearch
+  #   networks:
+  #     - medatata-network
+  # kibana:
+  #   container_name: kb-container
+  #   image: docker.elastic.co/kibana/kibana:8.13.2
+  #   environment:
+  #     - ELASTICSEARCH_HOSTS="http://es01:9200"
+  #   restart: unless-stopped
+  #   depends_on:
+  #     - es01
+  #   ports:
+  #     - "5601:5601"
+  #   networks:
+  #     - medatata-network
+  
+volumes:
+  data-volume:
+    driver: local
+  elasticsearch-volume:
+    driver: local
+  certs:
+    driver: local
+  data01:
+    driver: local
+  data02:
+    driver: local
+  data03:
+    driver: local
+networks:
+  medatata-network:
+    driver: bridge

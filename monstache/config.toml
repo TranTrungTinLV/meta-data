@@ -1,0 +1,67 @@
+# connection settings
+
+# if you need to seed an index from a collection and not just listen and sync changes events
+# you can copy entire collections or views from MongoDB to Elasticsearch
+direct-read-namespaces = ["db.products", "db.categories"]
+
+# if you want to use MongoDB change streams instead of legacy oplog tailing use change-stream-namespaces
+# change streams require at least MongoDB API 3.6+
+# if you have MongoDB 4+ you can listen for changes to an entire database or entire deployment
+# in this case you usually don't need regexes in your config to filter collections unless you target the deployment.
+# to listen to an entire db use only the database name.  For a deployment use an empty string.
+change-stream-namespaces = ["db.products", "db.categories"]
+
+# additional settings
+
+# compress requests to Elasticsearch
+gzip = true
+# generate indexing statistics
+stats = false
+# index statistics into Elasticsearch
+index-stats = false
+# use the following user name for Elasticsearch basic auth
+elasticsearch-max-conns = 10
+# use the following PEM file to connections to Elasticsearch
+# elasticsearch-pem-file = "/path/to/elasticCert.pem"
+# validate connections to Elasticsearch
+# elastic-validate-pem-file = true
+# propogate dropped collections in MongoDB as index deletes in Elasticsearch
+dropped-collections = true
+# propogate dropped databases in MongoDB as index deletes in Elasticsearch
+dropped-databases = true
+# do not start processing at the beginning of the MongoDB oplog
+# if you set the replay to true you may see version conflict messages
+# in the log if you had synced previously. This just means that you are replaying old docs which are already
+# in Elasticsearch with a newer version. Elasticsearch is preventing the old docs from overwriting new ones.
+replay = false
+# resume processing from a timestamp saved in a previous run
+resume = true
+# do not validate that progress timestamps have been saved
+resume-write-unsafe = false
+# override the name under which resume state is saved
+resume-name = "default"
+# use a custom resume strategy (tokens) instead of the default strategy (timestamps)
+# tokens work with MongoDB API 3.6+ while timestamps work only with MongoDB API 4.0+
+resume-strategy = 1
+verbose = false
+# do not exit after full-sync, rather continue tailing the oplog
+exit-after-direct-reads = false
+
+########################################
+# xác định collection được mapping từ mongodb sang ES
+[[mapping]]
+namespace = "db.products" # bạn sửa lại thành tên collection của bạn nhé
+index = "newproduct" # tên index
+
+########################################
+# Lọc các bản ghi trước khi đánh index (nếu bạn không cần lọc thì có thể bỏ qua phần này)
+# đọc thêm tại đây https://rwynn.github.io/monstache-site/advanced/#filtering
+[[filter]]
+path = "./filter/base.js"
+
+########################################
+# script có thể dùng để chỉnh sửa dữ liệu, drop bản ghi
+[[script]]
+namespace = "db.products"
+routing = true
+path = "./transform/base.js"
