@@ -14,8 +14,8 @@ import { UsersService } from '../users/users.service';
 import { UpdateProductDto } from './dtos/update-product.dto';
 import { Category } from '../category/schema/category.schema';
 import { FilterProductDto } from './dtos/filter-product.dto';
-import { MetadataService } from '../metadata/metadata.service';
-import { ElasticsearchService } from '@nestjs/elasticsearch';
+// import { MetadataService } from '../metadata/metadata.service';
+// import { ElasticsearchService } from '@nestjs/elasticsearch';
 import { Workbook } from 'exceljs';
 import { FilterExportDto } from './dtos/fiter-export-dtos';
 import { PDFOptions } from 'puppeteer';
@@ -33,7 +33,7 @@ export class ProductService {
     @InjectModel(Category.name) private readonly categoryModel: Model<Category>,
     // @InjectModel(Favorite.name) private readonly favoriteModel: Model<Favorite>
     private readonly userService: UsersService,
-    private readonly metadataService: MetadataService,
+    // private readonly metadataService: MetadataService,
     // private readonly elasticService: ElasticsearchService,
   ) {}
   async createExcel(
@@ -85,36 +85,36 @@ export class ProductService {
       category_id: category._id,
     });
 
-    const index = 'newproduct';
-    const body = {
-      settings: { number_of_shards: 1, number_of_replicas: 1 },
-      mappings: {
-        properties: {
-          name: newProduct.name,
-          code: newProduct.code,
-          detail: newProduct.detail,
-          images: newProduct.images,
-        },
-      },
-    };
-    const existsElastic = index
-      ? await this.metadataService.indexExists(index)
-      : await this.metadataService.createIndex(index, body);
-    console.log('existsElastic', existsElastic);
-    if (!existsElastic) {
-      console.log('existsElastic', existsElastic);
-      await this.metadataService.createIndex(index, body);
-    } else {
-      console.log('existsElastic tồn tại');
-    }
-    //Elastic
-    this.metadataService.index(index, {
-      id: String(newProduct._id),
-      name: newProduct.name,
-      code: newProduct.code,
-      detail: newProduct.detail,
-      image: newProduct.images,
-    });
+    // const index = 'newproduct';
+    // const body = {
+    //   settings: { number_of_shards: 1, number_of_replicas: 1 },
+    //   mappings: {
+    //     properties: {
+    //       name: newProduct.name,
+    //       code: newProduct.code,
+    //       detail: newProduct.detail,
+    //       images: newProduct.images,
+    //     },
+    //   },
+    // };
+    // const existsElastic = index
+    //   ? await this.metadataService.indexExists(index)
+    //   : await this.metadataService.createIndex(index, body);
+    // console.log('existsElastic', existsElastic);
+    // if (!existsElastic) {
+    //   console.log('existsElastic', existsElastic);
+    //   await this.metadataService.createIndex(index, body);
+    // } else {
+    //   console.log('existsElastic tồn tại');
+    // }
+    // //Elastic
+    // this.metadataService.index(index, {
+    //   id: String(newProduct._id),
+    //   name: newProduct.name,
+    //   code: newProduct.code,
+    //   detail: newProduct.detail,
+    //   image: newProduct.images,
+    // });
 
     await this.categoryModel.findByIdAndUpdate(category._id, {
       $push: { products: (await newProduct)._id },
@@ -212,7 +212,7 @@ export class ProductService {
   ): Promise<PaginateResult<Product> | Product[] | any> {
     if (filter.name) {
       console.log('elastic');
-      return this.metadataService.searchElastic('newproduct', filter.name);
+      // return this.metadataService.searchElastic('newproduct', filter.name);
       ///
     } else {
       console.log('mongodb');

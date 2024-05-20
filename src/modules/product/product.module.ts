@@ -12,8 +12,8 @@ import {
 } from '../favorite/schema/create-favorite.schema';
 import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from 'src/common/guard/auth.gaurd';
-import { MetadataModule } from '../metadata/metadata.module';
-import { ElasticsearchModule } from '@nestjs/elasticsearch';
+// import { MetadataModule } from '../metadata/metadata.module';
+// import { ElasticsearchModule } from '@nestjs/elasticsearch';
 import { PdfService } from 'src/common/pdf-request-form/pdf.request';
 import { PDFModule, PDFModuleOptions } from '@t00nday/nestjs-pdf';
 
@@ -30,18 +30,8 @@ import { PDFModule, PDFModuleOptions } from '@t00nday/nestjs-pdf';
       })
     }),
     UsersModule,
-    MetadataModule,
-    ElasticsearchModule.register({
-      node: 'https://127.0.0.1:9200',
-      maxRetries: 10,
-      requestTimeout: 60000,
-      pingTimeout: 60000,
-      sniffOnStart: true,
-      auth: {
-        username: 'tin',
-        password: 'Sgod111!',
-      },
-    }),
+    // MetadataModule,
+
     MongooseModule.forFeature([
       { name: User.name, schema: UserSchema },
       { name: Product.name, schema: ProductSchema },
@@ -62,4 +52,4 @@ import { PDFModule, PDFModuleOptions } from '@t00nday/nestjs-pdf';
     },
   ],
 })
-export class ProductModule {}
+export class ProductModule { }

@@ -28,8 +28,8 @@ import { UploadCSVFileDto } from '../dtos/csv_upload.dto';
 import { checkArrayAInArrayB } from 'src/common/utils/checker.helper';
 import { EDirUpload } from 'src/common/enums/dir_upload.enum';
 import { ConfigService } from '@nestjs/config';
-import { ElasticsearchService } from '@nestjs/elasticsearch';
-import { MetadataService } from 'src/modules/metadata/metadata.service';
+// import { ElasticsearchService } from '@nestjs/elasticsearch';
+// import { MetadataService } from 'src/modules/metadata/metadata.service';
 
 @Injectable({ scope: Scope.REQUEST })
 export class UploadsService {
@@ -47,8 +47,8 @@ export class UploadsService {
     private productModel: Model<Product>,
     //** Services
     private readonly configService: ConfigService,
-    private readonly elasticService: ElasticsearchService,
-    private readonly metadataService: MetadataService,
+    // private readonly elasticService: ElasticsearchService,
+    // private readonly metadataService: MetadataService,
     // ** Transactions
     @InjectConnection()
     private connection: Connection,
@@ -407,7 +407,7 @@ export class UploadsService {
         null,
         { session },
       );
-      console.log(existingProduct)
+      console.log(existingProduct);
       // if (existingProduct) {
       //   throw new BadRequestException(
       //     `Duplicate entry found for product with code: ${data['code']} or name: ${data['name']}`,
@@ -419,21 +419,21 @@ export class UploadsService {
     });
   }
 
-  private async indexProductData(product: Product): Promise<void> {
-    await this.elasticService.index({
-      index: 'products',
-      body: {
-        name: product.name,
-        detail: product.detail,
-        code: product.code,
-        alternativeNames: product.alternativeName,
-        category: product.category_id,
-        specification: product.specification,
-        standard: product.standard,
-        unit: product.unit,
-      },
-    });
-  }
+  // private async indexProductData(product: Product): Promise<void> {
+  //   await this.elasticService.index({
+  //     index: 'products',
+  //     body: {
+  //       name: product.name,
+  //       detail: product.detail,
+  //       code: product.code,
+  //       alternativeNames: product.alternativeName,
+  //       category: product.category_id,
+  //       specification: product.specification,
+  //       standard: product.standard,
+  //       unit: product.unit,
+  //     },
+  //   });
+  // }
 
   private async createProduct(payload): Promise<Product> {
     const { data, req, session } = payload;
@@ -443,36 +443,36 @@ export class UploadsService {
       session,
     });
 
-    const index = 'newproduct';
-    const body = {
-      settings: { number_of_shards: 1, number_of_replicas: 1 },
-      mappings: {
-        properties: {
-          name: asset.name,
-          code: asset.code,
-          detail: asset.detail,
-          images: asset.images,
-        },
-      },
-    };
-    const existsElastic = index
-      ? await this.metadataService.indexExists(index)
-      : await this.metadataService.createIndex(index, body);
-    console.log('existsElastic', existsElastic);
-    if (!existsElastic) {
-      console.log('existsElastic', existsElastic);
-      await this.metadataService.createIndex(index, body);
-    } else {
-      console.log('existsElastic tồn tại');
-    }
+    // const index = 'newproduct';
+    // const body = {
+    //   settings: { number_of_shards: 1, number_of_replicas: 1 },
+    //   mappings: {
+    //     properties: {
+    //       name: asset.name,
+    //       code: asset.code,
+    //       detail: asset.detail,
+    //       images: asset.images,
+    //     },
+    //   },
+    // };
+    // const existsElastic = index
+    //   ? await this.metadataService.indexExists(index)
+    //   : await this.metadataService.createIndex(index, body);
+    // console.log('existsElastic', existsElastic);
+    // if (!existsElastic) {
+    //   console.log('existsElastic', existsElastic);
+    //   // await this.metadataService.createIndex(index, body);
+    // } else {
+    //   console.log('existsElastic tồn tại');
+    // }
     //Elastic
-    this.metadataService.index(index, {
-      id: String(asset._id),
-      name: asset.name,
-      code: asset.code,
-      detail: asset.detail,
-      image: asset.images,
-    });
+    // this.metadataService.index(index, {
+    //   id: String(asset._id),
+    //   name: asset.name,
+    //   code: asset.code,
+    //   detail: asset.detail,
+    //   image: asset.images,
+    // });
 
     // try {
     //   await this.indexProductData(asset);

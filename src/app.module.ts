@@ -24,7 +24,7 @@ import { FavoriteModule } from './modules/favorite/favorite.module';
 import { UploadsModule } from './modules/uploads/uploads.module';
 // import { CacheService } from './modules/cache/cache.service';
 // import { CacheModule } from './modules/cache/cache.module';
-import { MetadataModule } from './modules/metadata/metadata.module';
+// import { MetadataModule } from './modules/metadata/metadata.module';
 import { LoggerModule } from 'nestjs-pino';
 
 // import { MailerModule } from '@nestjs-modules/mailer';
@@ -97,7 +97,7 @@ import { LoggerModule } from 'nestjs-pino';
       }),
       inject: [ConfigService],
     }),
-    MetadataModule,
+    // MetadataModule,
     // CacheModule
   ],
   providers: [CacheService],
