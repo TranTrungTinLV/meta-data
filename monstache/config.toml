@@ -1,0 +1,188 @@
+# # connection settings
+
+# # connect to MongoDB using the following URL
+# mongo-url = "mongodb://mongodb-primary-metadata:27030"
+# # connect to the Elasticsearch REST API at the following node URLs
+# elasticsearch-urls = ["https://es01:9200/"]
+# elasticsearch-password = "ttt@2000"
+# elasticsearch-validate-pem-file = false
+
+# # elasticsearch-tls-skip-verify = true
+# # frequently required settings
+
+# # if you need to seed an index from a collection and not just listen and sync changes events
+# # you can copy entire collections or views from MongoDB to Elasticsearch
+# direct-read-namespaces = ["metadata.products"]
+
+# # if you want to use MongoDB change streams instead of legacy oplog tailing use change-stream-namespaces
+# # change streams require at least MongoDB API 3.6+
+# # if you have MongoDB 4+ you can listen for changes to an entire database or entire deployment
+# # in this case you usually don't need regexes in your config to filter collections unless you target the deployment.
+# # to listen to an entire db use only the database name.  For a deployment use an empty string.
+# change-stream-namespaces = ["metadata.products"]
+# # [logs]
+# # error = "./logs/error.log"
+# # info = "./logs/info.log"
+# # warn = "./logs/warn.log"
+# # trace = "./logs/trace.log"
+# # additional settings
+# # compress requests to Elasticsearch
+# gzip = true
+# # generate indexing statistics
+# stats = false
+# # index statistics into Elasticsearch
+# index-stats = false
+# # use the following user name for Elasticsearch basic auth
+# elasticsearch-max-conns = 10
+# # use the following PEM file to connections to Elasticsearch
+# # elasticsearch-pem-file = "/path/to/elasticCert.pem"
+# # validate connections to Elasticsearch
+# # elastic-validate-pem-file = true
+# # propogate dropped collections in MongoDB as index deletes in Elasticsearch
+# dropped-collections = true
+# # propogate dropped databases in MongoDB as index deletes in Elasticsearch
+# dropped-databases = true
+# # do not start processing at the beginning of the MongoDB oplog
+# # if you set the replay to true you may see version conflict messages
+# # in the log if you had synced previously. This just means that you are replaying old docs which are already
+# # in Elasticsearch with a newer version. Elasticsearch is preventing the old docs from overwriting new ones.
+# replay = true
+# # resume processing from a timestamp saved in a previous run
+# resume = true
+# # do not validate that progress timestamps have been saved
+# resume-write-unsafe = false
+# # override the name under which resume state is saved
+# resume-name = "default"
+# # use a custom resume strategy (tokens) instead of the default strategy (timestamps)
+# # tokens work with MongoDB API 3.6+ while timestamps work only with MongoDB API 4.0+
+# resume-strategy = 1
+# verbose = false
+# # do not exit after full-sync, rather continue tailing the oplog
+# exit-after-direct-reads = false
+# ########################################
+# # xác định collection được mapping từ mongodb sang ES
+# [[mapping]]
+# namespace = "metadata.products" # bạn sửa lại thành tên collection của bạn nhé
+# index = "newproduct" # tên index
+
+
+# # namespace = "metadata.*" # bạn sửa lại thành tên collection của bạn nhé
+# # index = "newProduct" # tên index
+
+# ########################################
+# # Lọc các bản ghi trước khi đánh index (nếu bạn không cần lọc thì có thể bỏ qua phần này)
+# # đọc thêm tại đây https://rwynn.github.io/monstache-site/advanced/#filtering
+# [[filter]]
+# path = "filter/base.js"
+
+# ########################################
+# # script có thể dùng để chỉnh sửa dữ liệu, drop bản ghi
+# [[script]]
+# namespace = "db.col1"
+# routing = true
+# path = "transform/base.js"
+
+
+# # Kết nối đến MongoDB
+# mongo-url = "mongodb://mongodb-primary-metadata:27030/metadata"
+
+# # Kết nối đến Elasticsearch
+# elasticsearch-urls = ["https://es01:9200/"]
+# elasticsearch-password = "ttt@2000"
+# elasticsearch-validate-pem-file = false
+
+# # Cấu hình đọc trực tiếp từ các namespace MongoDB
+# direct-read-namespaces = ["metadata.products"]
+
+# # Sử dụng change streams để lắng nghe thay đổi từ các namespace MongoDB
+# change-stream-namespaces = ["metadata.products"]
+
+# # Nén các yêu cầu gửi tới Elasticsearch
+# gzip = true
+
+# # Chuyển các collection bị xoá trong MongoDB thành xoá index trong Elasticsearch
+# dropped-collections = true
+
+# # Chuyển các database bị xoá trong MongoDB thành xoá index trong Elasticsearch
+# dropped-databases = true
+
+# # Không bắt đầu xử lý từ đầu của oplog MongoDB
+# replay = true
+
+# # Tiếp tục xử lý từ timestamp được lưu trữ từ lần chạy trước
+# resume = true
+
+# # Không thoát sau khi đọc trực tiếp hoàn tất, tiếp tục theo dõi oplog
+# exit-after-direct-reads = false
+
+# # Định nghĩa collection mapping từ MongoDB sang Elasticsearch
+# [[mapping]]
+# namespace = "metadata.products"
+# index = "newproduct"
+
+# # Lọc các bản ghi trước khi đánh index (nếu cần)
+# [[filter]]
+# path = "filter/base.js"
+
+# # Script để chỉnh sửa dữ liệu (nếu cần)
+# [[script]]
+# namespace = "metadata.products"
+# routing = true
+# path = "transform/base.js"
+
+# Kết nối đến MongoDB
+mongo-url = "mongodb://mongodb-primary-metadata:27030/metadata"
+
+# Kết nối đến Elasticsearch
+elasticsearch-urls = ["https://es01:9200/"]
+elasticsearch-user = "elastic"
+elasticsearch-password = "ttt@2000"
+elasticsearch-validate-pem-file = false
+
+# Cấu hình đọc trực tiếp từ các namespace MongoDB
+direct-read-namespaces = ["metadata.products"]
+
+# Sử dụng change streams để lắng nghe thay đổi từ các namespace MongoDB
+change-stream-namespaces = ["metadata.products"]
+
+# Nén các yêu cầu gửi tới Elasticsearch
+gzip = true
+
+# Chuyển các collection bị xoá trong MongoDB thành xoá index trong Elasticsearch
+dropped-collections = true
+
+# Chuyển các database bị xoá trong MongoDB thành xoá index trong Elasticsearch
+dropped-databases = true
+
+# Không bắt đầu xử lý từ đầu của oplog MongoDB
+replay = false
+resume = false
+
+# Tiếp tục xử lý từ timestamp được lưu trữ từ lần chạy trước
+
+
+# Không thoát sau khi đọc trực tiếp hoàn tất, tiếp tục theo dõi oplog
+exit-after-direct-reads = false
+
+namespace-regex='^metadata\.products$' 
+delete-strategy = 1 # Xóa trực tiếp tài liệu trong Elasticsearch
+
+[logs]
+error = "./logs/error.log"
+info = "./logs/info.log"
+warn = "./logs/warn.log"
+trace = "./logs/trace.log"
+# Định nghĩa collection mapping từ MongoDB sang Elasticsearch
+[[mapping]]
+namespace = "metadata.products"
+index = "newproducts"
+
+# Lọc các bản ghi trước khi đánh index (nếu cần)
+[[filter]]
+path = "filter/base.js"
+
+# Script để chỉnh sửa dữ liệu (nếu cần)
+[[script]]
+namespace = "metadata.products"
+routing = true
+path = "transform/base.js"

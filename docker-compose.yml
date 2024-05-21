@@ -1,0 +1,80 @@
+version: '3.7'
+
+services:
+
+  redis-metadata:
+    container_name: redis-metadata
+    image: redislabs/rejson:latest
+    ports:
+      - '6377:6379'
+    volumes:
+      - ./redis/redis-metadata:/data/redis
+    env_file:
+      - .env
+    networks:
+      - medatata-network
+  mongodb-primary-metadata:
+    container_name: mongodb-primary-metadata
+    image: mongo
+    restart: always
+    command: ["--replSet", "Sgod_Metadata", "--bind_ip_all", "--port", "27030"]
+    ports:
+      - '27030:27030'
+    volumes:
+      - ../../data_metadata/mongodb-primary-asset:/data/db
+    env_file:
+      - .env
+    healthcheck:
+      test: test $$(echo "rs.initiate({_id:'Sgod_Metadata',members:[{_id:0,host:\"mongodb-primary-metadata:27030\"},{_id:1,host:\"mongodb-secondary-metadata:27031\"},{_id:2,host:\"mongodb-arbiter-metadata:27032\"}]}).ok || rs.status().ok" | mongosh --port 27030 --quiet) -eq 1
+      interval: 10s
+      start_period: 30s
+    networks:
+      - medatata-network
+  mongodb-secondary-metadata:
+    container_name: mongodb-secondary-metadata
+    image: mongo
+    depends_on:
+      - mongodb-primary-metadata
+    restart: always
+    command: ["--replSet", "Sgod_Metadata", "--bind_ip_all", "--port", "27031"]
+    volumes:
+      - ../../data_metadata/mongodb-secondary-metadata:/data/db
+    ports:
+      - 27031:27031
+    env_file:
+      - .env
+    networks:
+      - medatata-network
+  mongodb-arbiter-metadata:
+    container_name: mongodb-arbiter-metadata  
+    image: mongo
+    restart: always
+    command: ["--replSet", "Sgod_Metadata", "--bind_ip_all", "--port", "27032"]
+    volumes:
+      - ../../data_metadata/mongodb-arbiter-metadata:/data/db
+    ports:
+      - 27032:27032
+    depends_on:
+      - mongodb-primary-metadata
+    env_file:
+      - .env
+    networks:
+      - medatata-network
+
+  
+volumes:
+  data-volume:
+    driver: local
+  elasticsearch-volume:
+    driver: local
+  certs:
+    driver: local
+  data01:
+    driver: local
+  data02:
+    driver: local
+  data03:
+    driver: local
+networks:
+  medatata-network:
+    driver: bridge
