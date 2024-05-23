@@ -30,9 +30,9 @@ import { User, UserSchema } from "../users/schema/create-user.schema";
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({
         node: configService.get<string>("ELASTICSEARCH_NODE"),
-        maxRetries: configService.get<number>("MAXRETRIES"),
-        requestTimeout: configService.get<number>("REQUESTTIMEOUT"),
-        pingTimeout: configService.get<number>("PINGTIMEOUT"),
+        maxRetries: configService.get<number>("MAXRETRIES") || 10,
+        requestTimeout: configService.get<number>("REQUESTTIMEOUT") || 60000,
+        pingTimeout: configService.get<number>("PINGTIMEOUT") || 60000,
         auth: {
           username: configService.get<string>("CLIENT_USERNAME"),
           password: configService.get<string>("CLIENT_PASSWORD"),

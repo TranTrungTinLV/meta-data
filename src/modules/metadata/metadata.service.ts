@@ -29,6 +29,7 @@ import { removeDuplicatesString } from "src/common/utils/array.util";
 import { EElasticIndex } from "src/common/enums";
 import { Workbook } from "exceljs";
 import * as tmp from "tmp";
+import { SearchResponse } from "@elastic/elasticsearch/lib/api/types";
 @Injectable()
 export class MetadataService {
   private readonly client: Client;
@@ -41,7 +42,18 @@ export class MetadataService {
     @InjectModel(Metadata.name)
     private metadataModelPaginate: PaginateModel<MetadataDocument>,
     private readonly elasticsearchService: ElasticsearchService
-  ) {}
+  ) {
+    this.client = new Client({
+            node: process.env.ELASTICSEARCH_NODE,
+            auth: {
+              username: process.env.CLIENT_USERNAME,
+              password: process.env.CLIENT_PASSWORD,
+            },
+            tls: {
+              rejectUnauthorized: false,
+            }
+          });
+  }
 
   //************************   */
   async createMetadata(body: CreateMetadataDto, username: string) {
@@ -195,6 +207,28 @@ export class MetadataService {
       body: metadata,
     });
   }
+
+  async searchMetadata(query: string) {
+    const body: SearchResponse<any>  = await this.client.search({
+      index: EElasticIndex.NEW_PRODUCTS,
+      body: {
+        query: {
+          multi_match: {
+            query,
+            fields: ["name", "category_id", "detail", "images", "specification", "standard"],
+          }
+        }
+      }
+    });
+    console.log(body)
+    return body.hits.hits.map(hit => hit._source);
+  }
+
+  // async indexMetadata(query: string) {
+  //   await this.elasticsearchService.index({
+  //     index: 
+  //   })
+  // }
 
   async downloadExcel() {
     

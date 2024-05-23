@@ -44,12 +44,12 @@ import { PermissionGuard } from "src/common/guard/permission.guard";
 import { Permissions } from "src/common/decorators/permission.decorator";
 import { Response } from "express";
 
-@UseGuards(JwtAuthGuard, RolesGuardV2, PermissionGuard)
+// @UseGuards(JwtAuthGuard, RolesGuardV2, PermissionGuard)
 @ApiBearerAuth()
 @ApiTags("metadata")
 @Controller("metadata")
 export class MetadataController {
-  constructor(private readonly metadataService: MetadataService) {}
+  constructor(private readonly metadataService: MetadataService) { }
 
   @UseInterceptors(FilesInterceptor("images", 5, multerOptions("metadatas"))) //images
   @ApiConsumes("multipart/form-data")
@@ -97,6 +97,12 @@ export class MetadataController {
   @Post("bulk-delete")
   async bulkDeleteMetadata(@Body() body: BulkDeleteMetadataDto) {
     return await this.metadataService.bulkDeleteMetadata(body);
+  }
+
+  
+  @Get('search-metadata')
+  async searchMetaData(@Query('query') query: string) {
+    return await this.metadataService.searchMetadata(query);
   }
 
   @Get("test")
