@@ -1,0 +1,57 @@
+# connection settings
+
+# connect to MongoDB using the following URL
+mongo-url = "mongodb://mongodb-primary-metadata1:27080/metadata"
+# connect to the Elasticsearch REST API at the following node URLs
+# Kết nối đến Elasticsearch
+elasticsearch-urls = ["https://es01:9200/"]
+elasticsearch-user = "elastic"
+elasticsearch-password = "ttt@2000"
+elasticsearch-validate-pem-file = false
+
+# Cấu hình đọc trực tiếp từ các namespace MongoDB
+direct-read-namespaces = ["metadata.metadatas"]
+
+# Sử dụng change streams để lắng nghe thay đổi từ các namespace MongoDB
+change-stream-namespaces = ["metadata.metadatas"]
+
+# Nén các yêu cầu gửi tới Elasticsearch
+gzip = true
+
+# Chuyển các collection bị xoá trong MongoDB thành xoá index trong Elasticsearch
+dropped-collections = true
+
+# Chuyển các database bị xoá trong MongoDB thành xoá index trong Elasticsearch
+dropped-databases = true
+
+# Không bắt đầu xử lý từ đầu của oplog MongoDB
+replay = true
+
+# Tiếp tục xử lý từ timestamp được lưu trữ từ lần chạy trước
+resume = true
+
+# Không thoát sau khi đọc trực tiếp hoàn tất, tiếp tục theo dõi oplog
+exit-after-direct-reads = false
+
+namespace-regex='^metadata\.metadatas$'
+
+
+[logs]
+error = "./logs/error.log"
+info = "./logs/info.log"
+warn = "./logs/warn.log"
+trace = "./logs/trace.log"
+# Định nghĩa collection mapping từ MongoDB sang Elasticsearch
+[[mapping]]
+namespace = "metadata.metadatas"
+index = "NewMetaData"
+
+# Lọc các bản ghi trước khi đánh index (nếu cần)
+[[filter]]
+path = "filter/base.js"
+
+# Script để chỉnh sửa dữ liệu (nếu cần)
+[[script]]
+namespace = "metadata.metadatas"
+routing = true
+path = "transform/base.js"
