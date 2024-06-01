@@ -1,0 +1,108 @@
+version: "3.9"
+
+services:
+  sgod_metadata1:
+    container_name: metadata1
+    restart: always
+    build:
+      context: .
+      dockerfile: './Dockerfile'
+    volumes:
+      - ./:/usr/app
+      - /usr/app/node_modules
+    ports:
+      - 3003:3003
+    environment:
+      - DATABASE_URI=mongodb://mongodb-primary-metadata1:27080/metadata
+      - REDIS_HOST=redis-primary-metadata1
+      - REDIS_PORT=6379
+    env_file:
+      - .env
+    depends_on:
+      - mongodb-primary-metadata1
+      - mongodb-secondary-metadata1
+      - mongodb-arbiter-metadata1
+      - redis-primary-metadata1
+    command: yarn start:dev
+    networks:
+      - sgod_metadata1
+  mongodb-primary-metadata1:
+    container_name: mongodb-primary-metadata1
+    image: mongo
+    restart: always
+    command: ["--replSet", "Sgod_Metadata1", "--bind_ip_all", "--port", "27080"]
+    ports:
+      - '27080:27080'
+    volumes:
+      - ./data/mongodb-primary-metadata1:/data/db
+    env_file:
+      - .env
+    environment:
+      - DATABASE_URI=mongodb://mongodb-primary-metadata1:27080/metadata
+    healthcheck:
+      test: test $$(echo "rs.initiate({_id:'Sgod_Metadata1',members:[{_id:0,host:\"mongodb-primary-metadata1:27080\"},{_id:1,host:\"mongodb-secondary-metadata1:27081\"},{_id:2,host:\"mongodb-arbiter-metadata1:27082\"}]}).ok || rs.status().ok" | mongosh --port 27080 --quiet) -eq 1
+      interval: 10s
+      start_period: 30s
+    networks:
+      - sgod_metadata1
+  mongodb-secondary-metadata1:
+    container_name: mongodb-secondary-metadata1
+    image: mongo
+    depends_on:
+      - mongodb-primary-metadata1
+    restart: always
+    command: ["--replSet", "Sgod_Metadata1", "--bind_ip_all", "--port", "27081"]
+    volumes:
+      - ./data/mongodb-secondary-metadata1:/data/db
+    ports:
+      - 27081:27081
+    env_file:
+      - .env
+    environment:
+      - DATABASE_URI=mongodb://mongodb-primary-metadata1:27080/metadata
+    networks:
+      - sgod_metadata1
+  mongodb-arbiter-metadata1:
+    container_name: mongodb-arbiter-metadata1
+    image: mongo
+    depends_on:
+      - mongodb-primary-metadata1
+    restart: always
+    command: ["--replSet", "Sgod_Metadata1", "--bind_ip_all", "--port", "27082"]
+    environment:
+      - DATABASE_URI=mongodb://mongodb-primary-metadata1:27080/metadata
+    volumes:
+      - ./data/mongodb-arbiter-metadata1:/data/db
+    ports:
+      - 27082:27082
+    networks:
+      - sgod_metadata1
+  redis-primary-metadata1:
+    image: redis:latest
+    container_name: redis-primary-metadata1
+    restart: always
+    volumes:
+      - ./redis-data/data:/data
+    ports:
+      - '6333:6379'
+    env_file:
+      - .env
+    networks:
+      - sgod_metadata1
+  redis-slave-metadata1:
+    image: redis:latest
+    container_name: redis-slave-metadata1
+    ports:
+      - '6334:6379'
+    volumes:
+      - ./redis-data/data1:/data
+    command: redis-server --slaveof redis-primary-metadata1 6379
+    depends_on:
+      - redis-primary-metadata1
+    networks:
+      - sgod_metadata1
+
+networks:
+  sgod_metadata1:
+    driver: bridge
+
