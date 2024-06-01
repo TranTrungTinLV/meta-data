@@ -208,17 +208,6 @@ export class UploadsService {
    */
   listFieldSubject(modelName: string): string[] {
     const filedFilterSubjectDetail: Record<string, string[]> = {
-      // Product: [
-      //   "code",
-      //   "category_id",
-      //   "name",
-      //   "detail",
-      //   "specification",
-      //   "standard",
-      //   "unit",
-      //   "images",
-      // ],
-
       Metadata: [
         "code",
         "category_id",
@@ -227,8 +216,9 @@ export class UploadsService {
         "specification",
         "standard",
         "unit",
-        "images",
         "other_names",
+        "images",
+        "note",
       ],
     };
     this.logger.debug(
@@ -253,10 +243,7 @@ export class UploadsService {
 
     /** logger debug */
     this.logger.debug("Model name:", this.productModel.collection["modelName"]);
-    const fieldsOriginSubject = this.listFieldSubject(
-      // this.productModel.collection["modelName"],
-      "Metadata",
-    );
+    const fieldsOriginSubject = this.listFieldSubject("Metadata");
 
     const PImport: IPImport = {
       workbook,
@@ -267,6 +254,29 @@ export class UploadsService {
       keysWorksheet,
       imagesFromCSV,
     };
+    // Kiểm tra xem tất cả các cột bắt buộc có trong file Excel không
+    const requiredColumns = [
+      "ma_vat_tu",
+      "danh_muc",
+      "ten_vat_tu",
+      "mo_ta",
+      "quy_cach",
+      "tieu_chuan",
+      "dvt",
+      "ten_khac",
+      "anh",
+      "ghi_chu",
+    ];
+    const missingColumns = requiredColumns.filter(
+      (col) => !keysWorksheet.includes(col),
+    );
+
+    if (missingColumns.length > 0) {
+      console.log('missingColumns',missingColumns)
+      throw new BadRequestException(
+        `Some columns are missing when doing import: ${missingColumns.join(", ")}`,
+      );
+    }
     await this.handleImportAsset(req, PImport);
   }
 
@@ -334,9 +344,13 @@ export class UploadsService {
         "code",
         "category_id",
         "name",
+        "detail",
         "specification",
         "standard",
         "unit",
+        "other_names",
+        "images",
+        "note",
       ];
       if (!checkArrayAInArrayB(fieldsRequire, payload.keysWorksheet)) {
         throw new BadRequestException(
