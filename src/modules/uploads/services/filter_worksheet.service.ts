@@ -68,6 +68,29 @@ export async function filterDuplicates(data: any[]): Promise<any[]> {
     if (nameMap.has(item.name)) {
       const existingItem = nameMap.get(item.name);
       if (existingItem.other_name === item.other_name) {
+        // Nếu cả name và other_name đều trùng, bỏ qua mục này hoặc xử lý trùng lặp
+        // Logic xử lý trùng lặp có thể là cập nhật mục hiện tại hoặc bỏ qua
+      } else {
+        // Nếu chỉ name trùng nhưng other_name khác, giữ lại mục này
+        nameMap.set(item.name, item);
+      }
+    } else {
+      nameMap.set(item.name, item);
+      otherNameSet.add(item.other_name);
+    }
+  });
+
+  return Array.from(nameMap.values());
+}
+
+export async function filterDuplicates(data: any[]): Promise<any[]> {
+  const nameMap = new Map<string, any>();
+  const otherNameSet = new Set<string>();
+
+  data.forEach((item) => {
+    if (nameMap.has(item.name)) {
+      const existingItem = nameMap.get(item.name);
+      if (existingItem.other_name === item.other_name) {
         // Nếu cả name và other_name đều trùng, bỏ qua mục này
       } else {
         // Nếu chỉ name trùng nhưng other_name khác, giữ lại mục này
