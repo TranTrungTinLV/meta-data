@@ -4,16 +4,16 @@ import { IsOptional } from "class-validator";
 export class UploadCSVFileDto {
   @ApiProperty({
     example: {
-      ma_vat_tu: "A",
-      danh_muc: "B",
-      ten_vat_tu: "C",
-      mo_ta: "D",
-      quy_cach: "E",
-      tieu_chuan: "F",
-      dvt: "G",
-      ten_khac: "H",
-      anh: "I",
-      ghi_chu: "J",
+      code: "A",
+      category_id: "B",
+      name: "C",
+      detail: "D",
+      specification: "E",
+      standard: "F",
+      unit: "G",
+      other_names: "H",
+      images: "I",
+      note: "J",
     },
   })
   @IsOptional()

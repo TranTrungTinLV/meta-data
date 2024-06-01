@@ -52,11 +52,6 @@ export class CreateMetadataDto {
   @ApiProperty({ type: "string", format: "binary", required: false })
   images?: string[];
 
-  @IsString()
-  @IsOptional()
-  @ApiProperty({ description: "Ghi chú sản phẩm", required: false })
-  note?: string;
-
   @ApiProperty({ required: true, isArray: false })
   @IsOptional()
   @IsArray()

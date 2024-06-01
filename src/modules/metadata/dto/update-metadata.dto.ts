@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { ApiProperty } from "@nestjs/swagger";
 import {
   IsArray,
@@ -12,32 +13,32 @@ export class UpdateMetadataDto {
   @IsString()
   @IsOptional()
   @ApiProperty({ description: "Mã sản phẩm", required: false })
-   code: string;
+  code: string;
 
   @ApiProperty({ description: "Id category", required: false })
   @IsOptional()
   @IsString()
-   category_id: string;
+  category_id: string;
 
   @IsString()
   @IsOptional()
   @ApiProperty({ description: "Tên sản phẩm", required: false })
-   name: string;
+  name: string;
 
   @IsString()
   @IsOptional()
   @ApiProperty({ description: "chi tiết sản phẩm", required: false })
-   detail: string;
+  detail: string;
 
   @IsString()
   @IsOptional()
   @ApiProperty({ description: "Quy cách sản phẩm", required: false })
-   specification: string[];
+  specification: string[];
 
   @IsString()
   @IsOptional()
-  @ApiProperty({ description: "Tiêu chuẩn sản phẩm", required: false})
-   standard: string[];
+  @ApiProperty({ description: "Tiêu chuẩn sản phẩm", required: false })
+  standard: string[];
 
   @IsEnum(EUnitProduct)
   @IsOptional()
@@ -46,7 +47,12 @@ export class UpdateMetadataDto {
     required: true,
     enum: EUnitProduct,
   })
-   unit: string;
+  unit: string;
+
+  @IsString()
+  @IsOptional()
+  @ApiProperty({ required: false })
+  old_images: string[];
 
   @IsString()
   @IsOptional()
@@ -56,7 +62,7 @@ export class UpdateMetadataDto {
   @IsString()
   @IsOptional()
   @ApiProperty({ description: "Ghi chú sản phẩm", required: false })
-   note?: string;
+  note?: string;
 
   @ApiProperty({ required: false })
   @IsOptional()

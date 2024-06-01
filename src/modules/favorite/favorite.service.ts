@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import {
   BadRequestException,
   ForbiddenException,
@@ -6,9 +7,10 @@ import {
 import { CreateFavouriteDto, GetListFavouriteDto } from "./dtos";
 import { InjectModel } from "@nestjs/mongoose";
 import { Favourite, FavouriteDocument } from "./schema/favourite.schema";
-import { Model, PaginateDocument, PaginateModel } from "mongoose";
+import { Model, PaginateModel } from "mongoose";
 import { Product, ProductDocument } from "../product/schema/product.schema";
 import { GetPageLimitOffset } from "src/common/utils/paginate.util";
+import { Metadata, MetadataDocument } from "../metadata/schema/metadata.schema";
 
 @Injectable()
 export class FavoriteService {
@@ -17,16 +19,25 @@ export class FavoriteService {
     private favouriteModel: Model<FavouriteDocument>,
     @InjectModel(Product.name) private productModel: Model<ProductDocument>,
     @InjectModel(Favourite.name)
-    private favouriteModelPaginate: PaginateModel<FavouriteDocument>
+    private favouriteModelPaginate: PaginateModel<FavouriteDocument>,
+    @InjectModel(Metadata.name) private metadataModel: Model<MetadataDocument>
   ) {}
 
   async create(userId: string, body: CreateFavouriteDto) {
     try {
-      const product = await this.productModel.findById(body.product_id);
-      if (!product) throw new BadRequestException("Product not found!");
+      const [metadata, favouriteExists] = await Promise.all([
+        this.metadataModel.findById(body.metadata_id),
+        this.favouriteModel.findOne({
+          user_id: userId,
+          metadata_id: body.metadata_id,
+        }),
+      ]);
+      if (!metadata) throw new BadRequestException("Metadata not found!");
+      if (favouriteExists)
+        throw new BadRequestException("Metadata existed in favourite!");
       const favourite = await this.favouriteModel.create({
         user_id: userId,
-        product_id: body.product_id,
+        metadata_id: body.metadata_id,
       });
       return favourite;
     } catch (error) {
@@ -57,10 +68,12 @@ export class FavoriteService {
           offset,
           populate: [
             {
-              path: "user_id",
-              select: ["_id", "username", "email", "sex", "fullname"],
+              path: "metadata_id",
+              populate: {
+                path: "category_id",
+                populate: { path: "category_children_id" },
+              },
             },
-            { path: "product_id" },
           ],
         }
       );

@@ -57,14 +57,10 @@ export class ProductService {
     try {
       const { page, limit, offset } = GetPageLimitOffset(query);
       let filterQuery: FilterQuery<ProductDocument> = {};
-      if (query.price) {
-        filterQuery.price = +query.price;
-      }
-      if (query.quantity) {
-        filterQuery.quantity = +query.quantity;
-      }
-      if (query.note) {
-        filterQuery.note = new RegExp(query.note);
+      if (query.search) {
+        filterQuery.search = new RegExp(
+          removeVietnameseDiacritics(query.search).toLocaleLowerCase()
+        );
       }
       const listProduct = await this.productModelPaginate.paginate(
         { ...filterQuery },
@@ -73,7 +69,13 @@ export class ProductService {
           limit,
           offset,
           sort: query.sort ? { createdAt: +query.sort } : { createdAt: 1 },
-          populate: "metadata_id",
+          populate: {
+            path: "metadata_id",
+            populate: {
+              path: "category_id",
+              populate: { path: "category_children_id" },
+            },
+          },
         }
       );
       return listProduct;

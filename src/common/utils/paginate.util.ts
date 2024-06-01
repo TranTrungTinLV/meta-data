@@ -6,7 +6,9 @@ export const GetPageLimitOffset = (query: any) => {
   const limit: number = query.limit
     ? +query.limit
     : +process.env.DEFAULT_PAGE_LIMIT;
-  const offset: number = (query.page - 1) * query.limit;
+  const offset: number = query.offset
+    ? (query.page - 1) * query.limit + query.offset
+    : (query.page - 1) * query.limit;
   delete query.page;
   delete query.limit;
   delete query.offset;

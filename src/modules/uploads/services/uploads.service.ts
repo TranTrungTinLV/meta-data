@@ -1,3 +1,6 @@
+/* eslint-disable prefer-const */
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable prettier/prettier */
 // ** Libraries
 import * as sharp from "sharp";
 import * as xlsx from "xlsx";
@@ -28,7 +31,12 @@ import { UploadCSVFileDto } from "../dtos/csv_upload.dto";
 import { checkArrayAInArrayB } from "src/common/utils/checker.helper";
 import { EDirUpload } from "src/common/enums/dir_upload.enum";
 import { ConfigService } from "@nestjs/config";
-import { Metadata } from "src/modules/metadata/schema/metadata.schema";
+import {
+  Metadata,
+  MetadataDocument,
+} from "src/modules/metadata/schema/metadata.schema";
+import { EColMetadataName } from "src/common/enums";
+import { removeDuplicatesString } from "src/common/utils/array.util";
 
 @Injectable({ scope: Scope.REQUEST })
 export class UploadsService {
@@ -44,13 +52,14 @@ export class UploadsService {
     private categoryModel: Model<CategoryDocument>,
     @InjectModel(Metadata.name)
     private productModel: Model<Metadata>,
+    @InjectModel(Metadata.name) private metadataModel: Model<MetadataDocument>,
 
     //** Services
     private readonly configService: ConfigService,
 
     // ** Transactions
     @InjectConnection()
-    private connection: Connection,
+    private connection: Connection
   ) {}
 
   /** Func mv file */
@@ -85,16 +94,16 @@ export class UploadsService {
   urlUniq(urlImage: string): string {
     const rootPathImageDir = resolve(
       __dirname,
-      `../../../${readEnv("DIR_UPLOADS")[""]}/${readEnv("SUB_DIR_UPLOADS")[""]}/`,
+      `../../../${readEnv("DIR_UPLOADS")[""]}/${readEnv("SUB_DIR_UPLOADS")[""]}/`
     );
     return `/${_.toString(
-      _.compact(_.uniq(`${rootPathImageDir}/${urlImage}`.split("/"))),
+      _.compact(_.uniq(`${rootPathImageDir}/${urlImage}`.split("/")))
     ).replace(/,/gi, "/")}`;
   }
 
   private readonly rootPathImageDir = resolve(
     __dirname,
-    `../../../../${process.env.DIR_UPLOADS}/${process.env.SUB_DIR_UPLOADS}/`,
+    `../../../../${process.env.DIR_UPLOADS}/${process.env.SUB_DIR_UPLOADS}/`
   );
 
   /** Func remove file with argument is path of file in storage folder */
@@ -140,13 +149,13 @@ export class UploadsService {
           imageName = await this.resizeImage(
             newPath,
             payload.width,
-            payload.height,
+            payload.height
           );
         } else {
           imageName = i;
         }
         images.push(
-          `/${this.configService.get("SUB_DIR_UPLOADS")}/${path}/${imageName}`,
+          `/${this.configService.get("SUB_DIR_UPLOADS")}/${path}/${imageName}`
         );
       }
     }
@@ -159,11 +168,11 @@ export class UploadsService {
   async resizeImage(
     path: string,
     width: number,
-    height: number,
+    height: number
   ): Promise<string> {
     try {
       const newName = this.ranDomImagePath(
-        path.split("/")[path.split("/").length - 1],
+        path.split("/")[path.split("/").length - 1]
       );
 
       // ** resize with sharp
@@ -194,7 +203,7 @@ export class UploadsService {
       }`;
       await writeFileSync(
         `${this.rootPathImageDir}/${pathFile}`,
-        <Buffer>record.buffer,
+        <Buffer>record.buffer
       );
       namesFile.push(`${pathFile}`);
     }
@@ -208,6 +217,17 @@ export class UploadsService {
    */
   listFieldSubject(modelName: string): string[] {
     const filedFilterSubjectDetail: Record<string, string[]> = {
+      // Product: [
+      //   "code",
+      //   "category_id",
+      //   "name",
+      //   "detail",
+      //   "specification",
+      //   "standard",
+      //   "unit",
+      //   "images",
+      // ],
+
       Metadata: [
         "code",
         "category_id",
@@ -223,7 +243,7 @@ export class UploadsService {
     };
     this.logger.debug(
       "Filed filter subject detail:",
-      filedFilterSubjectDetail[modelName],
+      filedFilterSubjectDetail[modelName]
     );
     return filedFilterSubjectDetail[modelName];
   }
@@ -232,7 +252,7 @@ export class UploadsService {
   async importFile(
     req: any,
     body: UploadCSVFileDto,
-    file: Express.Multer.File,
+    file: Express.Multer.File
   ) {
     const colsWorksheet: string[] = Object.values(JSON.parse(body.index));
     const keysWorksheet: string[] = Object.keys(JSON.parse(body.index));
@@ -242,8 +262,14 @@ export class UploadsService {
     const imagesFromCSV = await filterImageFromCSV(file);
 
     /** logger debug */
-    this.logger.debug("Model name:", this.productModel.collection["modelName"]);
-    const fieldsOriginSubject = this.listFieldSubject("Metadata");
+    this.logger.debug(
+      "Model name:",
+      this.metadataModel.collection["modelName"]
+    );
+    const fieldsOriginSubject = this.listFieldSubject(
+      // this.productModel.collection["modelName"],
+      "Metadata"
+    );
 
     const PImport: IPImport = {
       workbook,
@@ -254,29 +280,6 @@ export class UploadsService {
       keysWorksheet,
       imagesFromCSV,
     };
-    // Kiểm tra xem tất cả các cột bắt buộc có trong file Excel không
-    const requiredColumns = [
-      "ma_vat_tu",
-      "danh_muc",
-      "ten_vat_tu",
-      "mo_ta",
-      "quy_cach",
-      "tieu_chuan",
-      "dvt",
-      "ten_khac",
-      "anh",
-      "ghi_chu",
-    ];
-    const missingColumns = requiredColumns.filter(
-      (col) => !keysWorksheet.includes(col),
-    );
-
-    if (missingColumns.length > 0) {
-      console.log('missingColumns',missingColumns)
-      throw new BadRequestException(
-        `Some columns are missing when doing import: ${missingColumns.join(", ")}`,
-      );
-    }
     await this.handleImportAsset(req, PImport);
   }
 
@@ -284,12 +287,12 @@ export class UploadsService {
   private async generateDocumentUniq(
     colName: string,
     payload: IPImport,
-    session: any,
+    session: any
   ) {
     if (!payload.fieldsOriginSubject) {
       this.logger.error(
         "fieldsOriginSubject is undefined",
-        payload.fieldsOriginSubject,
+        payload.fieldsOriginSubject
       );
       throw new Error("fieldsOriginSubject is undefined");
     }
@@ -299,7 +302,7 @@ export class UploadsService {
 
     const indexColWorksheet = indexColsWorksheet(payload.range);
     const indexField = payload.fieldsOriginSubject.findIndex(
-      (e) => e === colName,
+      (e) => e === colName
     );
     const indexColDetail = indexColWorksheet[payload.colsWorksheet[indexField]];
     for (
@@ -319,7 +322,7 @@ export class UploadsService {
         newDocument = await this.categoryModel.findOne(
           { name: item },
           undefined,
-          { session },
+          { session }
         );
         if (!newDocument) {
           [newDocument] = await this.categoryModel.create([{ name: item }], {
@@ -352,9 +355,12 @@ export class UploadsService {
         "images",
         "note",
       ];
+      const missingColumns = fieldsRequire.filter(
+        (col) => !payload.keysWorksheet.includes(col),
+      );
       if (!checkArrayAInArrayB(fieldsRequire, payload.keysWorksheet)) {
         throw new BadRequestException(
-          "Some columns are missing when doing import",
+          `Some columns are missing when doing import${missingColumns}`,
         );
       }
 
@@ -362,7 +368,7 @@ export class UploadsService {
       const categories = await this.generateDocumentUniq(
         "category_id",
         payload,
-        session,
+        session
       );
 
       // console.log("categories",categories)
@@ -377,7 +383,7 @@ export class UploadsService {
         for (let col = payload.range.s.c; col <= payload.range.e.c; col++) {
           const cellAddress = getCellAddress(
             row,
-            rangeIndexColsWorksheet[payload.colsWorksheet[col]],
+            rangeIndexColsWorksheet[payload.colsWorksheet[col]]
           );
 
           const cellContent = payload.worksheet[cellAddress];
@@ -386,7 +392,7 @@ export class UploadsService {
           // ** image row
           if (payload.imagesFromCSV[cellAddress]) {
             imgsOfAsset = await this.writeFileSync(
-              payload.imagesFromCSV[cellAddress],
+              payload.imagesFromCSV[cellAddress]
             );
           }
 
@@ -408,13 +414,21 @@ export class UploadsService {
         }
         data["category_id"] = categoryId;
         data["other_fields"] = other_data;
-
+        if (data["specification"]) {
+          data["specification"] = data["specification"].split(",");
+        }
+        if (data["standard"]) {
+          data["standard"] = data["standard"].split(",");
+        }
+        if (data["other_names"]) {
+          data["other_names"] = data["other_names"].split(",");
+        }
         // ** check all fields require => can create asset
         const allFieldsHashValue = fieldsRequire.every((field) => data[field]);
-        const assetExits = await this.productModel.findOne(
+        const assetExits = await this.metadataModel.findOne(
           { name: data["name"] },
           {},
-          { session },
+          { session }
         );
 
         if ((!allFieldsHashValue || assetExits) && imgsOfAsset.length > 0) {
@@ -431,16 +445,16 @@ export class UploadsService {
             imgsOfAsset,
             session,
           };
-          const asset = await this.createProduct(PCreateAsset);
+          const asset = await this.createMetadata(PCreateAsset);
           this.logger.debug(
-            `Process - Import asset: create new asset ${asset.name}`,
+            `Process - Import asset: create new asset ${asset.name}`
           );
         }
       }
     });
   }
 
-  private async createProduct(payload: {
+  private async createMetadata(payload: {
     imgsOfAsset?: any;
     data?: any;
     req?: any;
@@ -449,7 +463,7 @@ export class UploadsService {
     const { data, req, session } = payload;
     let imgsOfAsset: string[] = payload.imgsOfAsset;
 
-    const [asset] = await this.productModel.create([data], {
+    const [asset] = await this.metadataModel.create([data], {
       session,
     });
 
@@ -458,7 +472,7 @@ export class UploadsService {
       const payloadMediaDir: IImagePayload = {
         idUser: req.user._id,
         idAsset: asset._id,
-        dir: EDirUpload.PRODUCT,
+        dir: EDirUpload.METADATA,
         image: imgsOfAsset,
         width: 800,
         height: 800,
@@ -469,5 +483,65 @@ export class UploadsService {
     // //** update QRCode
     await asset.updateOne({ images: imgsOfAsset }, { session });
     return asset;
+  }
+
+  async excelToMetadata(data: any[]) {
+    const listCategoryFromFile = await this.listCategoryImport(data);
+
+    const res = data.map((item) => {
+      let itemResult = {};
+      Object.keys(EColMetadataName).forEach((key) => {
+        if (item[EColMetadataName[key]]) {
+          //** nếu là category thì tạo */
+          if (key === "category_id") {
+            const category = listCategoryFromFile.find(
+              (i) => i.name == item[EColMetadataName[key]]
+            );
+            itemResult[key] = category._id;
+          }
+          if (key === "specification" || key === "standard") {
+            itemResult[key] = item[EColMetadataName[key]].split(",");
+          } else if (
+            key !== "specification" &&
+            key !== "standard" &&
+            key !== "category_id"
+          ) {
+            itemResult[key] = item[EColMetadataName[key]];
+          }
+        } else {
+          itemResult[key] = null;
+        }
+      });
+      return itemResult;
+    });
+    await this.metadataModel.insertMany(res);
+    return res;
+  }
+
+  async listCategoryImport(res: any[]) {
+    let listCategoryName = [];
+    //** lấy danh sách category name */
+    res.map((item) => {
+      if (item[EColMetadataName.category_id]) {
+        listCategoryName.push(item[EColMetadataName.category_id]);
+      }
+    });
+    listCategoryName = removeDuplicatesString(listCategoryName);
+    //** tìm category đã tồn tại */
+    const categoryExists = (
+      await this.categoryModel.find({
+        name: { $in: listCategoryName },
+      })
+    ).map((item) => item.name);
+    //** lấy danh sách category chưa tồn tại để tạo */
+    const categoryNotExists = listCategoryName.filter(
+      (item) => !categoryExists.includes(item)
+    );
+    await Promise.all(
+      categoryNotExists.map(async (item) => {
+        await this.categoryModel.create({ name: item });
+      })
+    );
+    return await this.categoryModel.find({ name: { $in: listCategoryName } });
   }
 }

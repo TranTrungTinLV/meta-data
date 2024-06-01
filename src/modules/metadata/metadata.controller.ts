@@ -87,9 +87,11 @@ export class MetadataController {
   @ApiConsumes("multipart/form-data")
   @Patch(":id")
   async updateMetadata(
+    @UploadedFiles() files: Array<Express.Multer.File>,
     @Body() body: UpdateMetadataDto,
     @Param("id") id: string
   ) {
+    body.images = files.map((file) => `images/metadatas/${file.filename}`);
     return await this.metadataService.uploadMetadata(id, body);
   }
 

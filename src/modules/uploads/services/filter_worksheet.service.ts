@@ -1,6 +1,7 @@
-import * as xlsx from 'xlsx';
-import * as ExcelJS from 'exceljs';
-import { IObjectNumberType } from 'src/common/interfaces';
+/* eslint-disable prettier/prettier */
+import * as xlsx from "xlsx";
+import * as ExcelJS from "exceljs";
+import { IObjectNumberType } from "src/common/interfaces";
 
 /** Func find address cell */
 export function getCellAddress(row: number, col: number): string {
@@ -17,7 +18,7 @@ export function getColAddress(col: number): string {
 /** Func index cols of worksheet */
 /** A,B,C,D => 0,1,2,3 */
 export function indexColsWorksheet(
-  range: xlsx.Range,
+  range: xlsx.Range
 ): IObjectNumberType<string> {
   const result = {};
   for (let col = range.s.c; col <= range.e.c; col++) {
@@ -32,7 +33,7 @@ export async function getValueInCol(
   colName: string,
   worksheet: xlsx.WorkSheet,
   range: xlsx.Range,
-  index: string[],
+  index: string[]
 ): Promise<string[]> {
   const result: string[] = [];
   for (let row = range.s.r + 1; row <= range.e.r; row++) {
@@ -58,11 +59,11 @@ export async function filterImageFromCSV(file) {
   for (const image of worksheetJS.getImages()) {
     let imagesMerge = [];
     const img = workbookJS.model.media.find(
-      (m) => m['index'] === image.imageId,
+      (m) => m["index"] === image.imageId
     );
     const addressCell = getCellAddress(
       image.range.tl.nativeRow,
-      image.range.tl.nativeCol,
+      image.range.tl.nativeCol
     );
     const imagesExits = result[addressCell];
     if (imagesExits) {

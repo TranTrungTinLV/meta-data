@@ -8,6 +8,7 @@ import { User, UserSchema } from "../users/schema/create-user.schema";
 import { Product, ProductSchema } from "../product/schema/product.schema";
 import { UsersModule } from "../users/users.module";
 import { Favourite, FavouriteSchema } from "./schema/favourite.schema";
+import { Metadata, MetadataSchema } from "../metadata/schema/metadata.schema";
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { Favourite, FavouriteSchema } from "./schema/favourite.schema";
       { name: Favourite.name, schema: FavouriteSchema },
       { name: User.name, schema: UserSchema },
       { name: Product.name, schema: ProductSchema },
+      { name: Metadata.name, schema: MetadataSchema },
     ]),
   ],
   controllers: [FavoriteController],

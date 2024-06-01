@@ -9,8 +9,8 @@ export class Favourite {
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: "User" })
   user_id: string;
 
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: "Product" })
-  product_id: string;
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: "Metadata" })
+  metadata_id: string;
 }
 
 export const FavouriteSchema =

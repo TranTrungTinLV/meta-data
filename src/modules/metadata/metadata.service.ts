@@ -209,15 +209,24 @@ export class MetadataService {
   }
 
   async uploadMetadata(id: string, body: UpdateMetadataDto) {
-    Object.keys(body).forEach((item) => {
-      if (body[item] === "") delete body[item];
+    //** parse JSON */
+    body = this.toJSON(body);
+    const metadata = await this.metadataModel.findById(id);
+    if (!metadata) throw new BadRequestException("Metadata not found!");
+    Object.keys(body).forEach((key) => {
+      if (body[key] !== "" && key !== "images") {
+        metadata[key] = body[key];
+      }
+      if (key === "images") {
+        //** giữ lại hình cũ */
+        metadata.images = metadata.images.filter((img) =>
+          body.old_images.includes(img)
+        );
+        //** thêm hình mới */
+        metadata.images = [...metadata.images, ...body["images"]];
+      }
     });
     //** update search field */
-    const metadata = await this.metadataModel.findByIdAndUpdate(
-      id,
-      { $set: { ...body } },
-      { new: true }
-    );
     const search = removeVietnameseDiacritics(
       `${metadata.name} ${metadata.other_names.join(" ")}`
     ).toLowerCase();
@@ -230,4 +239,17 @@ export class MetadataService {
   async downloadExcel() {}
 
   async downloadPdf() {}
+
+  //** HELPER FUNCTION */
+  toJSON(body: UpdateMetadataDto) {
+    if (body.specification)
+      body.specification = JSON.parse(body.specification.toString());
+    if (body.standard) body.standard = JSON.parse(body.standard.toString());
+    if (body.other_names)
+      body.other_names = JSON.parse(body.other_names.toString());
+    if (body.old_images) {
+      body.old_images = JSON.parse(body.old_images.toString());
+    }
+    return body;
+  }
 }

@@ -1,6 +1,7 @@
-import { existsSync, mkdirSync } from 'fs';
-import { diskStorage } from 'multer';
-import * as path from 'path';
+/* eslint-disable prettier/prettier */
+import { existsSync, mkdirSync } from "fs";
+import { diskStorage } from "multer";
+import * as path from "path";
 
 const fileFilter = (req: any, file: any, cb: any) => {
   cb(null, true);
@@ -10,7 +11,7 @@ const diskStorageFile = diskStorage({
   destination: async (req: any, file: any, cb: any) => {
     const rootPathUploadDir = path.resolve(
       __dirname,
-      `../../../${process.env.DIR_UPLOADS}/${process.env.SUB_DIR_UPLOADS}/products`,
+      `../../../${process.env.DIR_UPLOADS}/${process.env.SUB_DIR_UPLOADS}/products`
     );
 
     if (!existsSync(`${rootPathUploadDir}`)) {
@@ -19,8 +20,8 @@ const diskStorageFile = diskStorage({
     cb(null, rootPathUploadDir);
   },
   filename: (req: any, file: any, cb: any) => {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e5);
-    cb(null, uniqueSuffix + '-' + file.originalname.replace(/ /g, '-'));
+    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e5);
+    cb(null, uniqueSuffix + "-" + file.originalname.replace(/ /g, "-"));
   },
 });
 

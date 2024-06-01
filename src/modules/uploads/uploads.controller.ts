@@ -1,3 +1,5 @@
+/* eslint-disable prettier/prettier */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 // ** Libraries
 import {
   BadRequestException,
@@ -15,6 +17,8 @@ import {
 import { UploadsService } from "./services/uploads.service";
 import { UploadCSVFileDto } from "./dtos/csv_upload.dto";
 import {
+  ApiBearerAuth,
+  ApiConsumes,
   ApiOperation,
   ApiProperty,
   ApiSecurity,
@@ -23,41 +27,39 @@ import {
 import { FileInterceptor } from "@nestjs/platform-express";
 import { docUpload } from "./upload.doc";
 import { multerOptions } from "./file_mimietype.filter";
-import { AuthGuard } from "@nestjs/passport";
-import { Roles } from "src/common/decators/roles.decorator";
-import { Role } from "../users/interfaces/users.model";
 import { Public } from "src/common/decorators/public.decorations";
 import { JwtAuthGuard } from "src/common/guard/jwt-auth.guard";
+import { RolesGuardV2 } from "src/common/guard/roles-guard-v2.guard";
+import { Roles } from "src/common/decorators/roles.decorator";
+import { ERole } from "src/common/enums";
+import * as XLSX from "xlsx";
+import { ImportExcelDto } from "./dtos/import-excel.dto";
+@ApiBearerAuth()
 @ApiTags("Upload")
+@UseGuards(JwtAuthGuard, RolesGuardV2)
 @Controller("import")
-@UseGuards(JwtAuthGuard)
 export class UploadController {
-  constructor(private readonly uploadService: UploadsService) {}
+  constructor(private readonly uploadService: UploadsService) { }
 
-  @ApiSecurity("bearerAuth")
   @UseInterceptors(FileInterceptor("file", multerOptions()))
   @ApiOperation({
     summary: "imports excel to data",
     description: "required Admin",
   })
+  @Roles(ERole.ADMIN)
   @Post("imports")
-  // @UseGuards(AuthGuard('jwt'))
-  // @Roles([Role.Admin])
-  // @Public()
   @docUpload.uploadFile("Upload file")
   async uploadFile(
     @UploadedFile() file: Express.Multer.File,
     @Req() req,
-    @Body() body: UploadCSVFileDto,
+    @Body() body: UploadCSVFileDto
   ): Promise<any> {
     if (!file) throw new BadRequestException("File import is required");
     return this.uploadService.importFile(req, body, file);
   }
 
+  @Roles(ERole.ADMIN)
   @Get("imports")
-  // @Roles([Role.Admin])
-  // @ApiSecurity('bearerAuth')
-  @Public()
   @ApiOperation({
     summary: "get data from import",
     description: "required Admin",
@@ -72,9 +74,20 @@ export class UploadController {
       "specification",
       "standard",
       "unit",
-      "quantity",
+      "other_names",
       "images",
       "note",
     ];
+  }
+
+  @docUpload.getIndexExcel("import v2")
+  @ApiConsumes("multipart/form-data")
+  @UseInterceptors(FileInterceptor("file"))
+  @Post("import-v2")
+  async importV2(@UploadedFile() file, @Body() body: ImportExcelDto) {
+    const workbook = XLSX.read(file.buffer, { type: "buffer" });
+    const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+    const data = XLSX.utils.sheet_to_json(worksheet);
+    return await this.uploadService.excelToMetadata(data);
   }
 }

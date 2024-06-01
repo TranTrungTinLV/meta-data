@@ -15,9 +15,13 @@ import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 import { FavoriteService } from "./favorite.service";
 import { CreateFavouriteDto, GetListFavouriteDto } from "./dtos";
 import { IRequestWithUser } from "../uploads/interfaces";
+import { JwtAuthGuard } from "src/common/guard/jwt-auth.guard";
+import { RolesGuardV2 } from "src/common/guard/roles-guard-v2.guard";
+import { Public } from "src/common/decorators/public.decorations";
 
 @ApiTags("favourite")
 @ApiBearerAuth()
+@UseGuards(JwtAuthGuard, RolesGuardV2)
 @Controller("favourite")
 export class FavoriteController {
   constructor(private readonly favoriteService: FavoriteService) {}
