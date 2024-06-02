@@ -1,4 +1,5 @@
 import { Types } from 'mongoose';
+import { DataItem } from './image-payload.interface';
 
 export interface IPImportAssetFromCSV {
   images: string[];
@@ -11,4 +12,5 @@ export interface IPImportAssetFromCSV {
   exp: Date;
   location_id: Types.ObjectId | string;
   category_id: Types.ObjectId | string;
+  data: DataItem[]
 }

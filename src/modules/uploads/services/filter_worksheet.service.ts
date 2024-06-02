@@ -1,6 +1,7 @@
 import * as xlsx from "xlsx";
 import * as ExcelJS from "exceljs";
 import { IObjectNumberType } from "src/common/interfaces";
+import { DataItem } from "../interfaces";
 
 /** Func find address cell */
 export function getCellAddress(row: number, col: number): string {
@@ -76,17 +77,21 @@ export async function filterImageFromCSV(file) {
   return result;
 }
 
-export async function filterDuplicates(data: any[]): Promise<any[]> {
-  const nameMap = new Map<string, any>();
-
+export async function filterDuplicates(data: DataItem[]): Promise<DataItem[]> {
+  const nameMap = new Map<string, DataItem>();
+  const uniqueItems = new Map<string, DataItem>();
   data.forEach((item) => {
-    if (nameMap.has(item.name)) {
-      const existingItem = nameMap.get(item.name);
-      if (existingItem.other_name !== item.other_name) {
+    if (!item.other_name) {
+      // Nếu không có other_name, chỉ giữ mục đầu tiên với tên đó
+      if (!nameMap.has(item.name)) {
         nameMap.set(item.name, item);
       }
     } else {
-      nameMap.set(item.name, item);
+      // Nếu có other_name, giữ tất cả các mục có other_name khác nhau
+      const key = `${item.name}_${item.other_name}`;
+      if (!nameMap.has(key)) {
+        nameMap.set(key, item);
+      }
     }
   });
 

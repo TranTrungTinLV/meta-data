@@ -14,7 +14,11 @@ import {
   Category,
   CategoryDocument,
 } from "src/modules/category/schema/category.schema";
-import { IImagePayload, IPImport } from "../interfaces/image-payload.interface";
+import {
+  DataItem,
+  IImagePayload,
+  IPImport,
+} from "../interfaces/image-payload.interface";
 import { genFlagRandom } from "src/common/utils/generator.helper";
 import {
   filterDuplicates,
@@ -250,9 +254,10 @@ export class UploadsService {
       colsWorksheet,
       keysWorksheet,
       imagesFromCSV,
+      data: await filterDuplicates(
+        xlsx.utils.sheet_to_json(worksheet) as DataItem[],
+      ),
     };
-    const data = xlsx.utils.sheet_to_json(worksheet);
-    const filteredData = await filterDuplicates(data);
     await this.handleImportAsset(req, PImport);
   }
 
@@ -377,7 +382,7 @@ export class UploadsService {
             console.log("Data before converting undefined to null:", data);
             fieldsRequire.forEach((field) => {
               if (data[field] === undefined || data[field] === null) {
-                data[field] = "default_value"; // hoặc giá trị mặc định nào đó phù hợp
+                data[field] = null; // hoặc giá trị mặc định nào đó phù hợp
               }
             });
 

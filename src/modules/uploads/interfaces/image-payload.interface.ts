@@ -1,5 +1,5 @@
-import { Types } from 'mongoose';
-import * as xlsx from 'xlsx';
+import { Types } from "mongoose";
+import * as xlsx from "xlsx";
 
 export interface IImagePayload {
   idUser?: string | Types.ObjectId;
@@ -27,4 +27,11 @@ export interface IPImport {
   colsWorksheet: string[];
   keysWorksheet: string[];
   imagesFromCSV: object;
+  data: DataItem[]
+}
+
+// update filter data
+export interface DataItem {
+  name: string;
+  other_name?: string;
 }

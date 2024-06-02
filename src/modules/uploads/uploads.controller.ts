@@ -28,11 +28,14 @@ import { Roles } from "src/common/decators/roles.decorator";
 import { Role } from "../users/interfaces/users.model";
 import { Public } from "src/common/decorators/public.decorations";
 import { JwtAuthGuard } from "src/common/guard/jwt-auth.guard";
+import { filterDuplicates } from "./services/filter_worksheet.service";
+
+
 @ApiTags("Upload")
 @Controller("import")
 @UseGuards(JwtAuthGuard)
 export class UploadController {
-  constructor(private readonly uploadService: UploadsService) { }
+  constructor(private readonly uploadService: UploadsService) {}
 
   @ApiSecurity("bearerAuth")
   @UseInterceptors(FileInterceptor("file", multerOptions()))
