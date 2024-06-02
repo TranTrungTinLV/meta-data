@@ -1,6 +1,6 @@
-import * as xlsx from 'xlsx';
-import * as ExcelJS from 'exceljs';
-import { IObjectNumberType } from 'src/common/interfaces';
+import * as xlsx from "xlsx";
+import * as ExcelJS from "exceljs";
+import { IObjectNumberType } from "src/common/interfaces";
 
 /** Func find address cell */
 export function getCellAddress(row: number, col: number): string {
@@ -58,7 +58,7 @@ export async function filterImageFromCSV(file) {
   for (const image of worksheetJS.getImages()) {
     let imagesMerge = [];
     const img = workbookJS.model.media.find(
-      (m) => m['index'] === image.imageId,
+      (m) => m["index"] === image.imageId,
     );
     const addressCell = getCellAddress(
       image.range.tl.nativeRow,
@@ -74,4 +74,21 @@ export async function filterImageFromCSV(file) {
     result[addressCell] = imagesMerge;
   }
   return result;
+}
+
+export async function filterDuplicates(data: any[]): Promise<any[]> {
+  const nameMap = new Map<string, any>();
+
+  data.forEach((item) => {
+    if (nameMap.has(item.name)) {
+      const existingItem = nameMap.get(item.name);
+      if (existingItem.other_name !== item.other_name) {
+        nameMap.set(item.name, item);
+      }
+    } else {
+      nameMap.set(item.name, item);
+    }
+  });
+
+  return Array.from(nameMap.values());
 }

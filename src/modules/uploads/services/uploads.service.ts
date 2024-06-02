@@ -17,6 +17,7 @@ import {
 import { IImagePayload, IPImport } from "../interfaces/image-payload.interface";
 import { genFlagRandom } from "src/common/utils/generator.helper";
 import {
+  filterDuplicates,
   filterImageFromCSV,
   getCellAddress,
   getColAddress,
@@ -250,6 +251,8 @@ export class UploadsService {
       keysWorksheet,
       imagesFromCSV,
     };
+    const data = xlsx.utils.sheet_to_json(worksheet);
+    const filteredData = await filterDuplicates(data);
     await this.handleImportAsset(req, PImport);
   }
 
@@ -323,11 +326,7 @@ export class UploadsService {
 
           let categoryId: Types.ObjectId = null;
 
-          for (
-            let row = currentRow;
-            row <= batchEnd;
-            row++
-          ) {
+          for (let row = currentRow; row <= batchEnd; row++) {
             for (let col = payload.range.s.c; col <= payload.range.e.c; col++) {
               const cellAddress = getCellAddress(
                 row,
