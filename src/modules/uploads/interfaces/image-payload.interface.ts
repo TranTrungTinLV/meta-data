@@ -27,7 +27,7 @@ export interface IPImport {
   colsWorksheet: string[];
   keysWorksheet: string[];
   imagesFromCSV: object;
-  data: DataItem[]
+  // data: DataItem[]
 }
 
 // update filter data

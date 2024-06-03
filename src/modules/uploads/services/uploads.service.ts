@@ -14,11 +14,7 @@ import {
   Category,
   CategoryDocument,
 } from "src/modules/category/schema/category.schema";
-import {
-  DataItem,
-  IImagePayload,
-  IPImport,
-} from "../interfaces/image-payload.interface";
+import { DataItem, IImagePayload, IPImport } from "../interfaces/image-payload.interface";
 import { genFlagRandom } from "src/common/utils/generator.helper";
 import {
   filterDuplicates,
@@ -59,7 +55,7 @@ export class UploadsService {
     // ** Transactions
     @InjectConnection()
     private connection: Connection,
-  ) {}
+  ) { }
 
   /** Func mv file */
   moveFile(oldPath: string, newPath: string): void {
@@ -200,9 +196,8 @@ export class UploadsService {
     const namesFile: string[] = [];
     for (const record of files) {
       const keyRandom = genFlagRandom(5);
-      const pathFile = `${Date.now()}-${keyRandom}-${record.name}.${
-        record.extension
-      }`;
+      const pathFile = `${Date.now()}-${keyRandom}-${record.name}.${record.extension
+        }`;
       await writeFileSync(
         `${this.rootPathImageDir}/${pathFile}`,
         <Buffer>record.buffer,
@@ -254,11 +249,10 @@ export class UploadsService {
       colsWorksheet,
       keysWorksheet,
       imagesFromCSV,
-      data: await filterDuplicates(
-        xlsx.utils.sheet_to_json(worksheet) as DataItem[],
-      ),
     };
-    await this.handleImportAsset(req, PImport);
+    const data = xlsx.utils.sheet_to_json(worksheet) as DataItem[];
+    const filteredData = await filterDuplicates(data);
+    await this.handleImportAsset(req,filteredData, PImport);
   }
 
   /** Func handle filter list categories | locations -> after create documents */
@@ -307,12 +301,15 @@ export class UploadsService {
   }
 
   /** Func handle import asset data */
-  private async handleImportAsset(req: any, payload: IPImport) {
+  private async handleImportAsset(req: any, filteredData: any[], payload: IPImport) {
     const BATCH_SIZE = 500; // Define batch size
-    const rows = payload.range.e.r - payload.range.s.r;
+    // const rows = payload.range.e.r - payload.range.s.r;
+    const rows = filteredData.length;
     let currentRow = payload.range.s.r + UploadsService.INDEX_START_ROW;
 
     while (currentRow <= payload.range.e.r) {
+    // while (currentRow <= rows) {
+
       const batchEnd = Math.min(currentRow + BATCH_SIZE, payload.range.e.r + 1);
       try {
         await withTransaction(this.connection, async (session) => {
@@ -525,3 +522,10 @@ export class UploadsService {
     return asset;
   }
 }
+
+
+
+
+
+
+
