@@ -110,11 +110,19 @@ export class MetadataService {
     );
     if (query.search) {
       console.log('elastic')
+      const from = (page - 1) * limit
+      if (from + limit > 10000) {
+        throw new BadRequestException(`
+        Please reduce the page number or limit to stay within 10,000 results.
+        `)
+      }
       const elasticSearchResults = await this.getElasticSearchResults(
-        query.search
+        query.search,
+        from,
+        limit
       );
       //if not in elastic it using search in mongodb 
-      if(elasticSearchResults.length === 0){
+      if (elasticSearchResults.length === 0) {
         console.log('mongodb')
         return listMetadata;
       }
@@ -126,15 +134,17 @@ export class MetadataService {
     return listMetadata;
   }
 
-  private async getElasticSearchResults(query: string) {
-    try{
+  private async getElasticSearchResults(query: string, from: number, size: number) {
+    try {
       const body: SearchResponse<any> = await searchElasticSearch(
         this.client,
         EElasticIndex.NEW_PRODUCTS,
-        query
+        query,
+        from,
+        size
       );
-  
-      if(body.hits.hits.length === 0) {
+
+      if (body.hits.hits.length === 0) {
         return [];
       }
       const categoryIds = body.hits.hits.map((hit) =>
@@ -157,7 +167,7 @@ export class MetadataService {
         };
       });
       return results;
-    } catch (error){
+    } catch (error) {
       if (error.meta && error.meta.body && error.meta.body.error.type === 'index_not_found_exception') {
         console.error('Elasticsearch index not found, fallback to MongoDB');
         return [];
@@ -227,7 +237,7 @@ export class MetadataService {
     return metadata;
   }
 
-  async downloadExcel() {}
+  async downloadExcel() { }
 
-  async downloadPdf() {}
+  async downloadPdf() { }
 }
