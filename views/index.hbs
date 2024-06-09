@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Material Report Form</title>
+</head>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f4;
+        margin: 0;
+        padding: 0;
+    }
+
+    .container {
+        width: 95%;
+        margin: 20px auto;
+        background-color: #fff;
+        padding: 20px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    h1,
+    h2 {
+        text-align: center;
+    }
+
+    .info p {
+        font-size: 14px;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 10px;
+    }
+
+    th,
+    td {
+        border: 1px solid #000;
+        padding: 8px;
+        text-align: left;
+    }
+
+    th {
+        background-color: #ddd;
+    }
+
+    td {
+        background-color: #fff;
+    }
+
+    .footer {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-around;
+    }
+
+    .info p,
+    .footer p {
+        font-size: 14px;
+    }
+</style>
+
+<body>
+
+    <div class="container">
+        <h1>BẢNG BÁO CÁO NGUYÊN LIỆU, VẬT TƯ NHẬP-XUẤT-TỒN TRONG KỲ BÁO CÁO</h1>
+        <h2>(Dùng cho doanh nghiệp sản xuất kinh doanh trong Khu phi thuế quan)</h2>
+        <div class="info">
+            {{!-- {{#each data}} --}}
+            <p>Tên doanh nghiệp:....................{{username}}...........................Mã số doanh
+                nghiệp:...................................................................<span></span></p>
+            <p>Mã số doanh
+                nghiệp:.......................................................................................................................................................................<span></span>
+            </p>
+            <p>Địa chỉ doanh
+                nghiệp:....................................................................................................................................................................<span></span>
+            </p>
+            <p>Kỳ báo
+                cáo:...............................................................................................................................................................................<span></span>
+            </p>
+            <p>Đơn vị Hải quan làm thủ
+                tục:..............................................................................................................................................<span></span>
+            </p>
+            {{!-- {{/each}} --}}
+
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Số TT</th>
+                    <th>Mã NVL</th>
+                    <th>Tên nguyên, vật liệu (NVL)</th>
+                    <th>Danh mục</th>
+                    <th>Đơn vị tính</th>
+                    <th>Tồn kho</th>
+                    <th>Chi tiết</th>
+                    <th>Tiêu chuẩn</th>
+                    <th>Hình ảnh sản phẩm</th>
+                    <th>Ghi chú</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>1</td>
+                    <td>2</td>
+                    <td>3</td>
+                    <td>4</td>
+                    <td>5</td>
+                    <td>6</td>
+                    <td>7</td>
+                    <td>8</td>
+                    <td>9</td>
+                    <td>10</td>
+                </tr>
+
+                {{#each data}}
+                <tr>
+                    <td>{{@index}}</td>
+                    <td>{{this.code}}</td>
+                    <td>{{this.name}}</td>
+                    <td>{{this.category_id.name}}</td>
+                    <td>{{this.unit}}</td>
+                    <td>{{this.quantity}}</td>
+                    <td>{{this.detail}}</td>
+                    <td>{{this.standard}}</td>
+                    <td> <img
+                            src= `http://localhost:3002/images/products/1714979103314-LGnsK-image1.png`
+                            
+                            alt="Image"></td>
+                    </td>
+                    <td>{{this.note}}</td>
+                </tr>
+                {{/each}}
+            </tbody>
+        </table>
+
+
+
+        <div class="footer">
+            <div class="footer-1">
+                <p>Ngày...... tháng ...... năm .........</p>
+                <p>Công chức Hải quan tiếp nhận</p>
+                <p>(Ký tên, đóng dấu công chức)</p>
+
+            </div>
+            <div class="footer-2">
+                <p>Ngày...... tháng ...... năm .........</p>
+                <p>Giám đốc doanh nghiệp </p>
+                <p>(Ký, ghi rõ họ tên, đóng dấu)</p>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
